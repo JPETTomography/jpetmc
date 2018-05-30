@@ -9,6 +9,7 @@
 #include "G4SolidStore.hh"
 #include "G4LogicalVolumeStore.hh"
 #include "G4PhysicalVolumeStore.hh"
+#include "G4RegionStore.hh"
 
 #include "DetectorConstructionMessenger.hh"
 
@@ -43,19 +44,18 @@ DetectorConstruction::~DetectorConstruction()
 
 void DetectorConstruction::UpdateGeometry()
 {
-      // clean-up previous geometry
-      G4SolidStore::GetInstance()->Clean();
-      G4LogicalVolumeStore::GetInstance()->Clean();
-      G4PhysicalVolumeStore::GetInstance()->Clean();
-      //define new one
-      G4RunManager::GetRunManager()->DefineWorldVolume(Construct());
-      G4RunManager::GetRunManager()->GeometryHasBeenModified();
-      // Please note that materials and sensitive detectors cannot be deleted. Thus the user has to set the pointers of already-existing materials / sensitive detectors to the relevant logical volumes. 
+    G4RunManager::GetRunManager()->ReinitializeGeometry();
 }
 
 
 G4VPhysicalVolume* DetectorConstruction::Construct() 
 {
+
+    G4GeometryManager::GetInstance()->OpenGeometry();
+    G4PhysicalVolumeStore::GetInstance()->Clean();
+    G4LogicalVolumeStore::GetInstance()->Clean();
+    G4SolidStore::GetInstance()->Clean();
+
 
     // world 
      worldSolid   = new G4Box("world", world_hx, world_hy, world_hz);
@@ -99,8 +99,12 @@ void DetectorConstruction::ConstructTargetRun3()
    G4RotationMatrix rot = G4RotationMatrix();
 
    G4double z[] = {-37*cm, -32.61*cm,-32.6*cm, -31.1*cm, -31*cm, 31*cm, 31.1*cm, 32.6*cm, 32.61*cm, 37*cm}; 
-   G4double rInner[] = { 0*cm, 0*cm, 0*cm, 0*cm, 9.1*cm, 9.1*cm, 0*cm, 0*cm, 0*cm, 0*cm};
-   G4double rOuter[] = { 3*cm, 3*cm, 12*cm, 12*cm, 9.5*cm, 9.5*cm, 12*cm, 12*cm, 3*cm, 3*cm}; 
+   G4double rInner[] = { 0*cm, 0*cm, 0*cm, 0*cm, 7.1*cm, 7.1*cm, 0*cm, 0*cm, 0*cm, 0*cm};
+   G4double rOuter[] = { 3*cm, 3*cm, 10*cm, 10*cm, 7.5*cm, 7.5*cm, 10*cm, 10*cm, 3*cm, 3*cm}; 
+
+   // wartości bazujące na wykresach technicznych - nie odpowiadają rzeczywistości 
+   //G4double rInner[] = { 0*cm, 0*cm, 0*cm, 0*cm, 9.1*cm, 9.1*cm, 0*cm, 0*cm, 0*cm, 0*cm};
+   //G4double rOuter[] = { 3*cm, 3*cm, 12*cm, 12*cm, 9.5*cm, 9.5*cm, 12*cm, 12*cm, 3*cm, 3*cm}; 
 
    G4Polycone* bigChamber = new G4Polycone("bigChamber",0*degree,360*degree, 10 , z, rInner, rOuter);
         
@@ -271,6 +275,8 @@ void DetectorConstruction::InitializeMaterials()
 
     bigChamberMaterial = new MaterialExtension("bigChamber", G4Material::GetMaterial("G4_Al"));
     bigChamberMaterial->AllowsAnnihilations(true); 
+    bigChamberMaterial->Set3gProbability(foPsProbabilityAl); 
+    bigChamberMaterial->SetoPsLifetime(fTauoPsAl); 
 }
 
 
@@ -310,8 +316,11 @@ void DetectorConstruction::ConstructFrameCAD()
 
 void DetectorConstruction::ConstructSDandField()
 {
-    G4String detectorName = "/mydet/detector";
-    DetectorSD * detectorSD = new DetectorSD(detectorName);
-    G4SDManager::GetSDMpointer()->AddNewDetector(detectorSD);
-    SetSensitiveDetector(scinLog,detectorSD);
+        if(!detectorSD.Get()){
+        DetectorSD* det = new DetectorSD("/mydet/detector");
+        detectorSD.Put(det);
+        }
+        G4SDManager::GetSDMpointer()->AddNewDetector(detectorSD.Get());
+        SetSensitiveDetector(scinLog,detectorSD.Get());
+
 }

@@ -26,8 +26,9 @@ G4double MaterialExtension::Get3gFraction()
     //  Pi - propability of Ps formation
     //  f^{oPs}_{3g} = tau_i/tau_vac 
     
+    // foPsProbability = 4/3 I_3 measured in PALS
     // 3g = direct + oPs
-    f3gFraction = (1.-foPsPobability)/372 + (3/4)*(foPslifetime/foPsVaccum)*foPsPobability; 
+    f3gFraction = (1.-foPsPobability)/372 + (3/4)*(foPslifetime/fTauoPsVaccum)*foPsPobability; 
 
     return f3gFraction;
 }
@@ -47,7 +48,7 @@ void MaterialExtension::Set3gProbability(G4double x)
 
 void MaterialExtension::SetoPsLifetime(G4double x)
 {
-    if ( x <0 || x > foPsVaccum )
+    if ( x <0 || x > fTauoPsVaccum )
     {
         G4Exception ("MaterialExtension", "ME02", FatalException,
                 "oPs lifetime can not excided 142*ns");

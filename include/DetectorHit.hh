@@ -50,6 +50,13 @@ class DetectorHit : public G4VHit
     G4int GetNumInteractions() {return fNumInteractions;}
     G4String GetProcessName() {return fName;}
 
+    void SetGenGammaMultiplicity(G4int i){fGenGammaMultiplicity=i;}
+    void SetGenGammaIndex(G4int i){fGenGammaIndex=i;}
+
+    G4int GetGenGammaMultiplicity(){return fGenGammaMultiplicity;}
+    G4int GetGenGammaIndex(){return fGenGammaIndex;}
+
+
     private:
     G4int fScinID; //< scintillator number (arbitrary!; not following convension used in laboratory )
     G4int fTrackID; //< track identificator 
@@ -63,6 +70,10 @@ class DetectorHit : public G4VHit
     G4ThreeVector fMomentumIn;  //< momentum vector before interaction
     G4ThreeVector fMomentumOut; //< momentum vector after interaction
     G4String fName; //< process name
+
+    // from PrimaryParticleInformation
+    G4int fGenGammaMultiplicity;
+    G4int fGenGammaIndex;
 
 };
 

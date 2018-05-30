@@ -6,6 +6,7 @@
 #include "TrackingAction.hh"
 #include "SteppingAction.hh"
 
+
 ActionInitialization::ActionInitialization()
      : G4VUserActionInitialization()
 {}
@@ -25,11 +26,13 @@ void ActionInitialization::Build() const
 
 
     HistoManager*  histo = new HistoManager();
-    SetUserAction(new PrimaryGeneratorAction(histo));
-    SetUserAction(new RunAction(histo));
+
     SetUserAction(new EventAction(histo));
+    SetUserAction(new RunAction(histo));
+    SetUserAction(new PrimaryGeneratorAction(histo));
 
     SetUserAction(new TrackingAction);
     SetUserAction(new SteppingAction);
+
 }
 

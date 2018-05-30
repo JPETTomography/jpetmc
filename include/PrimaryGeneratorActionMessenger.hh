@@ -11,7 +11,7 @@
 #include "G4UIcmdWithAString.hh"
 #include "G4SystemOfUnits.hh" 
 //#include "G4UIcmdWithABool.hh"
-//#include "G4UIcmdWithAnInteger.hh"
+#include "G4UIcmdWithAnInteger.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWith3Vector.hh"
 
@@ -26,6 +26,7 @@ class PrimaryGeneratorActionMessenger: public G4UImessenger
 
     private:
         void CheckIfBeam();
+        void CheckIfIsotope();
         PrimaryGeneratorAction* fPrimGen;
         
         G4UIdirectory* fDirectory;
@@ -35,6 +36,12 @@ class PrimaryGeneratorActionMessenger: public G4UImessenger
         G4UIcmdWith3VectorAndUnit* fGammaBeamSetPosition;
         G4UIcmdWith3VectorAndUnit* fGammaBeamSetMomentum;
         G4UIcmdWith3Vector* fGammaBeamSetPolarization;
+
+
+        G4UIcmdWithAString* fIsotopeSetShape;
+        G4UIcmdWithAnInteger* fIsotopeSetGenGammas;
+        G4UIcmdWithADoubleAndUnit* fIsotopeSetShapeDimCylinderRadius; 
+        G4UIcmdWithADoubleAndUnit* fIsotopeSetShapeDimCylinderZ; 
 
         //G4UIcmdWith3Vector* fGammaBeamSetRelativePolarization;
 

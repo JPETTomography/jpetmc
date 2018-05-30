@@ -5,8 +5,8 @@
 
 #include "Trajectory.hh"
 #include "G4TrajectoryContainer.hh"
-#include "G4EventManager.hh"
 
+#include "G4EventManager.hh"
 #include "G4SDManager.hh"
 #include "DetectorHit.hh"
 
@@ -25,6 +25,7 @@ EventAction::~EventAction()
 
 void EventAction::BeginOfEventAction(const G4Event*)
 {
+
     G4SDManager * SDman = G4SDManager::GetSDMpointer();
     if(fScinCollID<0)
     {
@@ -32,38 +33,39 @@ void EventAction::BeginOfEventAction(const G4Event*)
         fScinCollID = SDman->GetCollectionID(colNam="detectorCollection");
     }
 
-    fHisto->Clear();
+     fHisto->Clear();
 }
 
 
 void EventAction::EndOfEventAction(const G4Event* anEvent)
 {
 
+
      if(anEvent->GetNumberOfPrimaryVertex()==0) return;
 
      G4int id =  anEvent->GetEventID();
      fHisto->SetEventNumber(id);
 
-     if ( id % 1000 == 0)
-     {
-         printf ("Processed %i events \n", id);
-     }
-     
 
+     /*
      G4TrajectoryContainer* trajectoryContainer = anEvent->GetTrajectoryContainer();
      G4int trackNum = 0; 
      if (trajectoryContainer) trackNum = trajectoryContainer->entries();
-     //G4cout << G4endl;
-     //G4cout << "Trajectories in tracker "<< 
-     //   "-------------------------------------------------" << G4endl;
-     //G4cout << trackNum <<  G4endl;
 
      for (G4int i=0; i<trackNum; i++)
      {
          Trajectory* vec = (Trajectory*)((*( anEvent->GetTrajectoryContainer()))[i]); 
-//         fHisto->GetDecayTree()->Fill(id,vec);
-//         fHisto->FillTrk();
+         printf("in %i  track ID %i, pdg %i parentID %i, x y x %4.2f %4.2f %4.2f \n",
+                 i,
+                 vec->GetTrackID(),
+                 vec->GetPDGEncoding(),
+                 vec->GetParentID(),
+                 vec->GetVertexPosition().x(),
+                 vec->GetVertexPosition().y(),
+                 vec->GetVertexPosition().z()
+               );
      }
+     */
 
     G4HCofThisEvent * HCE = anEvent->GetHCofThisEvent();
     DetectorHitsCollection* DHC = 0;
@@ -76,12 +78,33 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
         for (int i=0; i<n_hit; i++)
         {
           fHisto->AddNewHit((DetectorHit*)DHC->GetHit(i) );
+           //DetectorHit* dh =  (DetectorHit*)DHC->GetHit(i);
+           //printf("dh %i trID %i  gammMuliplicity %i gammaindex %i  \n", 
+           //        i,
+           //        dh->GetTrackID(),
+           //        dh->GetGenGammaMultiplicity(),
+           //        dh->GetGenGammaIndex()
+           //        );
         }
 
+    }
+
+
+    for( int i=0; i<anEvent->GetNumberOfPrimaryVertex(); i++)
+    {
+        VtxInformation* info =  (VtxInformation*) anEvent->GetPrimaryVertex(i)->GetUserInformation();    
+        if( info != 0 )
+        {
+            fHisto->AddGenInfo(info);
+        }
     }
 
     // save full information about event in final ntuples
     fHisto->SaveEvtPack();
 
+     if ( id % 1000 == 0)
+     {
+         printf (" === Processed %i events \n", id);
+     }
 
 }

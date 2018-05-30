@@ -21,8 +21,6 @@ class DetectorSD : public G4VSensitiveDetector
         //G4int lastHitID;
         //G4double previousTime;
 
-
-
     protected:
          virtual G4bool ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist);
 

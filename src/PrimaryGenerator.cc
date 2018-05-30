@@ -15,6 +15,9 @@
 #include "G4PhysicalConstants.hh"
 #include "G4Circle.hh"
 
+#include "VtxInformation.hh"
+#include "PrimaryParticleInformation.hh"
+
 
 
 PrimaryGenerator::PrimaryGenerator()
@@ -24,6 +27,62 @@ PrimaryGenerator::PrimaryGenerator()
 
 PrimaryGenerator::~PrimaryGenerator()
 {}
+
+void PrimaryGenerator::GenerateEvtChamberRun3(G4Event* event)
+{
+
+    G4ThreeVector vtxPosition; // 2g/3g
+    G4ThreeVector promptVtxPosition
+         =  VertexUniformInCylinder(1.5*cm,0.2*cm);
+    G4double ratio3g;
+    G4double lifetime3g; 
+    std::tie(vtxPosition, ratio3g, lifetime3g) = GetVerticesDistribution();
+
+    G4PrimaryVertex* vertex;
+    vertex = new G4PrimaryVertex();
+    VtxInformation* info = new VtxInformation();
+    vertex->SetUserInformation(info);
+    vertex->SetPosition(vtxPosition.x(),vtxPosition.y(),vtxPosition.z());
+
+
+    G4PrimaryVertex* vertexPrompt = new G4PrimaryVertex() ;
+    VtxInformation* infoPrompt = new VtxInformation();
+    vertexPrompt->SetUserInformation(infoPrompt);
+    vertexPrompt->SetPosition(promptVtxPosition.x(),promptVtxPosition.y(),promptVtxPosition.z());
+
+
+    G4double lifetime;
+    G4double promptLifetime = G4RandExponential::shoot(3.7*ps);
+
+
+    if( ratio3g > G4UniformRand() )
+    { 
+        lifetime = G4RandExponential::shoot(lifetime3g);
+        //generate 3g
+        GenerateThreeGammaVertex(vertex);
+        info->SetThreeGammaGen(true);
+
+    } else {
+        //generate 2g
+        lifetime =G4RandExponential::shoot(fTauBulk);
+        GenerateTwoGammaVertex(vertex);
+        info->SetTwoGammaGen(true);
+    }
+    info->SetLifetime(lifetime/ps);
+    info->SetVtxPosition(vtxPosition.x()/cm,vtxPosition.y()/cm,vtxPosition.z()/cm);
+    event->AddPrimaryVertex(vertex);
+
+
+    // add sodium prompt gamma
+    GeneratePromptGammaSodium(vertexPrompt);
+    infoPrompt->SetPromptGammaGen(true);
+    infoPrompt->SetLifetime(promptLifetime);
+    infoPrompt->SetVtxPosition(promptVtxPosition.x()/cm,promptVtxPosition.y()/cm,promptVtxPosition.z()/cm);
+
+    event->AddPrimaryVertex(vertexPrompt);
+
+}
+
 
 void PrimaryGenerator::GenerateBeam(BeamParams* beamParams, G4Event* event)
 {
@@ -35,6 +94,7 @@ void PrimaryGenerator::GenerateBeam(BeamParams* beamParams, G4Event* event)
 
     const G4double ene = beamParams->GetEne();
     G4ThreeVector momentum = beamParams->GetMomentum();
+
 
     G4double px = ene * momentum.x();
     G4double py = ene * momentum.y();
@@ -48,6 +108,51 @@ void PrimaryGenerator::GenerateBeam(BeamParams* beamParams, G4Event* event)
     event->AddPrimaryVertex(vertex);
 }
 
+
+void PrimaryGenerator::GenerateIsotope(SourceParams* sourceParams, G4Event* event)
+{
+
+    G4ThreeVector vtxPosition; 
+
+    if (sourceParams->GetShape() == "cylinder")
+    {
+        vtxPosition =  VertexUniformInCylinder(sourceParams->GetShapeDim(0),sourceParams->GetShapeDim(1));
+    }
+
+    G4PrimaryVertex* vertex = new G4PrimaryVertex(vtxPosition,0);
+    VtxInformation* info = new VtxInformation();
+    vertex->SetUserInformation(info);
+    vertex->SetPosition(vtxPosition.x()/cm,vtxPosition.y()/cm,vtxPosition.z()/cm);
+
+
+    G4double lifetime = G4RandExponential::shoot(fTauBulk);
+
+
+    if ( sourceParams->GetGammasNumber() == 1 )
+    { 
+        GeneratePromptGammaSodium(vertex);
+        info->SetPromptGammaGen(true);
+        info->SetLifetime(lifetime);
+
+    } else if ( sourceParams->GetGammasNumber() == 2 )   {
+        //generate 2g
+        GenerateTwoGammaVertex(vertex);
+        info->SetTwoGammaGen(true);
+    } else if ( sourceParams->GetGammasNumber() == 3 )   {
+        //generate 3g
+        GenerateThreeGammaVertex(vertex);
+        info->SetThreeGammaGen(true);
+    } else {
+        G4Exception("PrimaryGenerator","PG01",FatalException,
+                " program does not know how many gamma quanta need to be simulated ");
+    }
+
+    info->SetLifetime(lifetime/ps);
+    info->SetVtxPosition(vtxPosition.x(),vtxPosition.y(),vtxPosition.z());
+    event->AddPrimaryVertex(vertex);
+
+
+}
 
 void PrimaryGenerator::GeneratePrimaryVertex(G4Event* event)
 {
@@ -73,17 +178,20 @@ void PrimaryGenerator::GeneratePrimaryVertex(G4Event* event)
     //GenerateThreeGammaVertex(vertex);
 
     event->AddPrimaryVertex(vertex);
+
+
 }
 
 
-G4ThreeVector PrimaryGenerator::VertexUniformInCylinder(G4double rSquare, G4double zmax)
+G4ThreeVector PrimaryGenerator::VertexUniformInCylinder(G4double rIn, G4double zmax)
 {
     //vertex A uniform on a cylinder
     //  
     //const G4double rSquare = 144*cm;
     //const G4double zmax = 34*cm;
     //
-    G4double r = std::sqrt(rSquare*G4UniformRand());
+    //G4double r = std::sqrt(rSquare*G4UniformRand());
+    G4double r = std::sqrt(pow(rIn,2)*G4UniformRand());
 
     G4double alpha = twopi*G4UniformRand();     //alpha uniform in (0, 2*pi)
     G4double ux = std::cos(alpha);
@@ -96,11 +204,12 @@ G4ThreeVector PrimaryGenerator::VertexUniformInCylinder(G4double rSquare, G4doub
 
 
 
-std::tuple<G4ThreeVector,int> PrimaryGenerator::GetVerticesDistribution()
+std::tuple<G4ThreeVector,G4double,G4double> PrimaryGenerator::GetVerticesDistribution()
 {
 
     G4bool lookForVtx = false;
     G4ThreeVector myPoint(0,0,0);
+    MaterialExtension* mat;
 
     // annihilation will occure only in materials where it was allowed @see MaterialExtension
     // annihilation rate 2g/3g also depends on the material type
@@ -109,21 +218,57 @@ std::tuple<G4ThreeVector,int> PrimaryGenerator::GetVerticesDistribution()
     {
         G4double x_tmp = 10.*(2*G4UniformRand() - 1)*cm;
         G4double y_tmp = 10.*(2*G4UniformRand() - 1)*cm;
-        G4double z_tmp = 30.*(2*G4UniformRand() - 1)*cm;
+        G4double z_tmp = 26.*(2*G4UniformRand() - 1)*cm;
 
         myPoint.setX(x_tmp);
         myPoint.setY(y_tmp);
         myPoint.setZ(z_tmp);
 
         G4Navigator* theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
-        MaterialExtension* mat = (MaterialExtension*)theNavigator->LocateGlobalPointAndSetup(myPoint)->GetLogicalVolume()->GetMaterial()  ; 
+        mat = (MaterialExtension*)theNavigator->LocateGlobalPointAndSetup(myPoint)->GetLogicalVolume()->GetMaterial()  ; 
         lookForVtx = mat->IsTarget();
 
     };
 
-    return std::make_tuple(myPoint,4);
+    G4double ratio3g = mat->Get3gFraction();
+    G4double  lifetime3g = mat->GetoPsLifetime();
+
+
+    return std::make_tuple(myPoint,ratio3g,lifetime3g);
 }
 
+
+
+//void PrimaryGenerator::GenerateTwoGammaVertex(G4PrimaryVertex* vertex )
+//{
+//    G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
+//    G4ParticleDefinition* particleDefinition = particleTable->FindParticle("gamma");
+//
+//
+//    G4double mass = 1022*keV;
+//    std::vector<G4double> mass_secondaries = {0., 0.};
+//
+//    std::vector<G4LorentzVector> out;
+//
+//    G4HadPhaseSpaceGenbod* phS = new G4HadPhaseSpaceGenbod();
+//    phS->Generate(mass,mass_secondaries,out);
+//
+//    // boost gamma quanta
+//    for (int i=0; i<2; i++)
+//    {
+//        // out[i].boost(BoostAxis,0.1);
+//
+//        G4PrimaryParticle* particle1 = new G4PrimaryParticle(particleDefinition,
+//                out[i].px(),out[i].py(),out[i].pz(),out[i].e());
+//        PrimaryParticleInformation* info = new PrimaryParticleInformation();
+//        info->SetGammaMultiplicity(2);
+//        info->SetIndex(i+1);
+//        particle1->SetUserInformation(info);
+//
+//        vertex->SetPrimary(particle1);
+//    }
+//
+//}
 
 
 void PrimaryGenerator::GenerateTwoGammaVertex(G4PrimaryVertex* vertex )
@@ -132,26 +277,33 @@ void PrimaryGenerator::GenerateTwoGammaVertex(G4PrimaryVertex* vertex )
     G4ParticleDefinition* particleDefinition = particleTable->FindParticle("gamma");
 
 
-    G4double mass = 1022*keV;
-    std::vector<G4double> mass_secondaries = {0., 0.};
+    Double_t mass_secondaries[2] = {0., 0.};
 
-    std::vector<G4LorentzVector> out;
+    TGenPhaseSpace event;
+    TLorentzVector vec_pozytonium(0.0,0.0,0.0,1022);
+    Bool_t test =  event.SetDecay(vec_pozytonium, 2, mass_secondaries);
+    if( !test){
+        std::cout   << "error: generate_gamma : createThreeEvts:" << test << std::endl;  
+    }
 
-    G4HadPhaseSpaceGenbod* phS = new G4HadPhaseSpaceGenbod();
-    phS->Generate(mass,mass_secondaries,out);
 
-    // boost gamma quanta
+    event.Generate();   
     for (int i=0; i<2; i++)
     {
-        // out[i].boost(BoostAxis,0.1);
+        TLorentzVector * out = event.GetDecay(i);
 
         G4PrimaryParticle* particle1 = new G4PrimaryParticle(particleDefinition,
-                out[i].px(),out[i].py(),out[i].pz(),out[i].e());
+                out->Px()*keV,out->Py()*keV,out->Pz()*keV,out->E()*keV);
 
+        PrimaryParticleInformation* info = new PrimaryParticleInformation();
+        info->SetGammaMultiplicity(2);
+        info->SetIndex(i+1);
+        particle1->SetUserInformation(info);
         vertex->SetPrimary(particle1);
     }
 
 }
+
 
 void PrimaryGenerator::GenerateThreeGammaVertex(G4PrimaryVertex* vertex )
 {
@@ -186,8 +338,11 @@ void PrimaryGenerator::GenerateThreeGammaVertex(G4PrimaryVertex* vertex )
 
         G4PrimaryParticle* particle1 = new G4PrimaryParticle(particleDefinition,
                 out->Px()*keV,out->Py()*keV,out->Pz()*keV,out->E()*keV);
-        // output in MeV
 
+        PrimaryParticleInformation* info = new PrimaryParticleInformation();
+        info->SetGammaMultiplicity(3);
+        info->SetIndex(i+1);
+        particle1->SetUserInformation(info);
         vertex->SetPrimary(particle1);
     }
 
@@ -210,6 +365,10 @@ void PrimaryGenerator::GeneratePromptGammaSodium(G4PrimaryVertex* vertex )
 
     G4PrimaryParticle* particle1 = new G4PrimaryParticle(particleDefinition,
             px, py, pz,ene);
+    PrimaryParticleInformation* info = new PrimaryParticleInformation();
+    info->SetGammaMultiplicity(1);
+    info->SetIndex(1);
+    particle1->SetUserInformation(info);
 
     vertex->SetPrimary(particle1);
     //printf(" %f \n", sqrt(pow(px,2)+pow(py,2)+pow(pz,2)));

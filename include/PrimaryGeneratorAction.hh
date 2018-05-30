@@ -9,6 +9,7 @@
 #include "PrimaryGeneratorActionMessenger.hh"
 
 #include "BeamParams.hh"
+#include "SourceParams.hh"
 
 
 struct IsotopeParams
@@ -29,9 +30,10 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         virtual void GeneratePrimaries(G4Event*);
 
         void SetSourceTypeInfo(G4String);
-        BeamParams* GetBeamParams(){return fBeam;};
+        BeamParams* GetBeamParams(){return fBeam;}
+        SourceParams* GetIsotopeParams(){return fIsotope;}
 
-        G4String GetSourceTypeInfo(){return fGenerateSourceType;};
+        G4String GetSourceTypeInfo(){return fGenerateSourceType;}
 
     private:
 
@@ -44,6 +46,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         HistoManager* fHisto;
 
         BeamParams* fBeam;
+        SourceParams* fIsotope;
 
 };
 #endif

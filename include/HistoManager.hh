@@ -8,7 +8,9 @@
 #include "JPetGeantDecayTree.h"
 #include "JPetGeantScinHits.h"
 #include "JPetGeantEventPack.h"
+#include "JPetGeantEventInformation.h"
 #include "DetectorHit.hh"
+#include "VtxInformation.hh"
 
 
 class TFile;
@@ -31,6 +33,7 @@ class HistoManager
         void SaveEvtPack(){fTree->Fill();}; 
         void Clear(){fEventPack->Clear();}; 
 
+        void AddGenInfo(VtxInformation* info);
         void AddNewHit(DetectorHit*);
         void SetEventNumber(int x){fEventPack->SetEventNumber(x);};
 
@@ -44,6 +47,7 @@ class HistoManager
         TBranch* fBranchEventPack;
 
         JPetGeantEventPack* fEventPack;
+        JPetGeantEventInformation* fGeantInfo; 
 
 };
 

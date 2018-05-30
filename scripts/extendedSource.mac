@@ -1,0 +1,22 @@
+# Visualization setting
+#/control/execute init_vis.mac
+
+# Initialize kernel
+/jpetmc/detector/loadOnlyScintillators
+#/jpetmc/detector/loadJPetBasicGeom 
+
+/jpetmc/source/setType isotope 
+
+/jpetmc/source/isotope/setShape cylinder
+/jpetmc/source/isotope/setNGamma 2 
+/jpetmc/source/isotope/setShape/cylinderRadius 40
+/jpetmc/source/isotope/setShape/cylinderZ 24
+
+
+/run/initialize
+
+
+#/vis/scene/add/scale   # Simple scale line
+#/vis/scene/add/axes    # Simple axes: x=red, y=green, z=blue.
+
+/run/beamOn 10000

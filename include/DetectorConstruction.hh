@@ -26,6 +26,8 @@
 
 #include "MaterialExtension.hh"
 
+#include "G4Cache.hh"
+
 class DetectorConstructionMessenger;
 
 
@@ -70,6 +72,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
 
     private:
+    static G4ThreadLocal G4bool fConstructedSDandField;
     static DetectorConstruction* fInstance;
 
     /// standard constructor
@@ -109,6 +112,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     MaterialExtension* bigChamberMaterial;
 
     G4LogicalVolume * scinLog;
+    G4Cache<DetectorSD*>  detectorSD;
 
 
 

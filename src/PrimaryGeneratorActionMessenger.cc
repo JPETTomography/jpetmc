@@ -39,11 +39,33 @@ PrimaryGeneratorActionMessenger::PrimaryGeneratorActionMessenger(PrimaryGenerato
     fGammaBeamSetPolarization->SetParameterName("Xvalue","Yvalue","Zvalue",false);
 
 
+    fIsotopeSetShape = new G4UIcmdWithAString("/jpetmc/source/isotope/setShape",this);
+    fIsotopeSetShape->SetCandidates("cylinder");
+
+    fIsotopeSetGenGammas = new G4UIcmdWithAnInteger("/jpetmc/source/isotope/setNGamma",this);
+    fIsotopeSetGenGammas->SetGuidance("Give number of gamma quanta to generate 1 / 2 / 3 ");
+
+    fIsotopeSetShapeDimCylinderRadius = new G4UIcmdWithADoubleAndUnit("/jpetmc/source/isotope/setShape/cylinderRadius",this);
+    fIsotopeSetShapeDimCylinderRadius->SetGuidance("For cylindrical shape - set radius"); 
+    fIsotopeSetShapeDimCylinderRadius->SetDefaultValue(10);
+    fIsotopeSetShapeDimCylinderRadius->SetDefaultUnit("cm");
+    fIsotopeSetShapeDimCylinderRadius->SetUnitCandidates("cm"); 
+
+    fIsotopeSetShapeDimCylinderZ = new G4UIcmdWithADoubleAndUnit("/jpetmc/source/isotope/setShape/cylinderZ",this);
+    fIsotopeSetShapeDimCylinderZ->SetGuidance("For cylindrical shape - set z (half length)"); 
+    fIsotopeSetShapeDimCylinderZ->SetDefaultValue(10);
+    fIsotopeSetShapeDimCylinderZ->SetDefaultUnit("cm");
+    fIsotopeSetShapeDimCylinderZ->SetUnitCandidates("cm"); 
+
+
 }
 
 
 PrimaryGeneratorActionMessenger::~PrimaryGeneratorActionMessenger()
 {
+    delete fIsotopeSetShape;
+    delete fIsotopeSetShapeDimCylinderRadius;
+    delete fIsotopeSetShapeDimCylinderZ;
     delete fSourceType;
     delete fGammaBeamSetEnergy;
     delete fGammaBeamSetPosition;
@@ -72,6 +94,40 @@ void PrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, G4String
         CheckIfBeam();
         fPrimGen->GetBeamParams()->SetMomentum(fGammaBeamSetMomentum->GetNew3VectorValue(newValue));
     }
+
+
+    if(command==fIsotopeSetShape){
+        fPrimGen->GetIsotopeParams()->SetShape(newValue);
+    }
+
+    if(command==fIsotopeSetGenGammas){
+        fPrimGen->GetIsotopeParams()->SetGammasNumber(fIsotopeSetGenGammas->GetNewIntValue(newValue));
+    }
+
+
+    if(command==fIsotopeSetShapeDimCylinderRadius){
+        CheckIfIsotope();
+        fPrimGen->GetIsotopeParams()->SetShapeDim(0,fIsotopeSetShapeDimCylinderRadius->GetNewDoubleRawValue(newValue));
+    }
+
+
+    if(command==fIsotopeSetShapeDimCylinderZ){
+        CheckIfIsotope();
+        fPrimGen->GetIsotopeParams()->SetShapeDim(1,fIsotopeSetShapeDimCylinderRadius->GetNewDoubleRawValue(newValue));
+    }
+
+}
+
+
+void PrimaryGeneratorActionMessenger::CheckIfIsotope()
+{
+        if(fPrimGen->GetSourceTypeInfo() != "isotope")
+        {
+            G4Exception("PrimaryGeneratorActionMessenger","PGM02",JustWarning,
+                    "Changed sourceType to isotope");
+            fPrimGen->SetSourceTypeInfo("isotope");
+        }
+
 }
 
 void PrimaryGeneratorActionMessenger::CheckIfBeam()

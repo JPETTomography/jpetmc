@@ -8,6 +8,7 @@
 #include<TGenPhaseSpace.h> 
 #include<TLorentzVector.h>
 #include "BeamParams.hh"
+#include "SourceParams.hh"
 
 
 class PrimaryGenerator : public G4VPrimaryGenerator 
@@ -16,13 +17,16 @@ class PrimaryGenerator : public G4VPrimaryGenerator
         PrimaryGenerator();
         ~PrimaryGenerator();
         void GenerateBeam(BeamParams*, G4Event* );
+        void GenerateIsotope(SourceParams*, G4Event* );
+        void GenerateEvtChamberRun3(G4Event*);
 
     public:
          virtual void GeneratePrimaryVertex(G4Event*);
 
      private:
 
-         std::tuple<G4ThreeVector,int> GetVerticesDistribution(); 
+         // return: vtx position, 2/3g ratio, meanlifetime
+         std::tuple<G4ThreeVector,G4double,G4double> GetVerticesDistribution(); 
         void GenerateTwoGammaVertex(G4PrimaryVertex*);
         void GenerateThreeGammaVertex(G4PrimaryVertex*);
         void GeneratePromptGammaSodium(G4PrimaryVertex*);

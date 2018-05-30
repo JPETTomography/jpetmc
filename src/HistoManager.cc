@@ -9,6 +9,7 @@
 HistoManager::HistoManager()
 {
     fEventPack = new JPetGeantEventPack();
+    fGeantInfo =  fEventPack->GetEventInformation();
 }
 
 HistoManager::~HistoManager()
@@ -36,6 +37,30 @@ void HistoManager::Book()
 
 }
 
+void HistoManager::AddGenInfo(VtxInformation* info)
+{
+    bool is3g = info->GetThreeGammaGen();
+    bool is2g = info->GetTwoGammaGen();
+    bool isprompt = info->GetPromptGammaGen();
+
+    if ( is2g || is3g )
+    {
+        fGeantInfo->SetThreeGammaGen(is3g);
+        fGeantInfo->SetTwoGammaGen(is2g);
+        fGeantInfo->SetVtxPosition(info->GetVtxPositionX(),info->GetVtxPositionY(),info->GetVtxPositionZ());
+        fGeantInfo->SetLifetime(info->GetLifetime());
+        fGeantInfo->SetRunNr(info->GetRunNr());
+    }
+
+    if (isprompt)
+    {
+        fGeantInfo->SetPromptGammaGen(isprompt);
+        fGeantInfo->SetPromptLifetime(info->GetLifetime());
+        fGeantInfo->SetVtxPromptPosition(info->GetVtxPositionX(),info->GetVtxPositionY(),info->GetVtxPositionZ());
+    }
+
+
+}
 
 void HistoManager::AddNewHit(DetectorHit* hit)
 {
@@ -48,15 +73,15 @@ void HistoManager::AddNewHit(DetectorHit* hit)
            hit->GetTrackID(),    //int trkID, 
            hit->GetTrackPDG(),    //int trkPDG, 
            hit->GetNumInteractions(),    //int nInter,
-           hit->GetEdep(),    //float ene, 
-           hit->GetTime()    //float time, 
+           hit->GetEdep()/keV,    //float ene, 
+           hit->GetTime()/ps    //float time, 
                );
 
          // ugly way but there is no easy way to cast g4vector into root vector
     geantHit->SetHitPosition(
-             hit->GetPosition().getX(),
-             hit->GetPosition().getY(),
-             hit->GetPosition().getZ());
+             hit->GetPosition().getX()/cm,
+             hit->GetPosition().getY()/cm,
+             hit->GetPosition().getZ()/cm);
 
     geantHit->SetPolarizationIn(
              hit->GetPolarizationIn().getX(),
@@ -69,15 +94,17 @@ void HistoManager::AddNewHit(DetectorHit* hit)
              hit->GetPolarizationOut().getZ());
 
     geantHit->SetMomentumIn(
-             hit->GetMomentumIn().getX(),
-             hit->GetMomentumIn().getY(),
-             hit->GetMomentumIn().getZ());
+             hit->GetMomentumIn().getX()/keV,
+             hit->GetMomentumIn().getY()/keV,
+             hit->GetMomentumIn().getZ()/keV);
 
     geantHit->SetMomentumOut(
-             hit->GetMomentumOut().getX(),
-             hit->GetMomentumOut().getY(),
-             hit->GetMomentumOut().getZ());
+             hit->GetMomentumOut().getX()/keV,
+             hit->GetMomentumOut().getY()/keV,
+             hit->GetMomentumOut().getZ()/keV);
 
+    geantHit->SetGenGammaMultiplicity(hit->GetGenGammaMultiplicity());
+    geantHit->SetGenGammaIndex(hit->GetGenGammaIndex());
 }
 
 

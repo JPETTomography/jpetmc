@@ -33,25 +33,14 @@ Trajectory::Trajectory(const G4Track* aTrack)
 
     fTrackID = aTrack->GetTrackID(); 
 
+
     fPositionRecord =new TrajectoryPointContainer();
     fPositionRecord->push_back(new G4TrajectoryPoint(aTrack->GetPosition()));
     fMomentum = aTrack->GetMomentumDirection();
     fVertexPosition = aTrack->GetPosition(); 
     fGlobalTime = aTrack->GetGlobalTime();
 
-    //
-   // TrackInformation* trackInfo  = (TrackInformation*)(aTrack->GetUserInformation());
-   // fTrackStatus = trackInfo->GetTrackingStatus();
-   // if(fTrackStatus == 1) 
-   // { fParentID = aTrack->GetParentID(); }  
-   // else if(fTrackStatus == 2) 
-   // { fParentID = trackInfo->GetSourceTrackID(); }
-   // else
-   // { fParentID = -1; } 
-
-//    fPositionRecord = new TrajectoryPointContainer();
-//    fPositionRecord->push_back(new G4TrajectoryPoint(aTrack->GetPosition())); 
-
+    fParentID = aTrack->GetParentID();
 
 }
 

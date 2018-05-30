@@ -13,7 +13,12 @@
  * \brief extended material keeps information about 2g/3g creation fraction
  */
 
-const G4double foPsVaccum = 142*ns;
+const G4double fTauoPsVaccum = 142*ns;
+
+const G4double fTauBulk = 0.2*ns;
+// data for AL  https://doi.org/10.1007/s00339-015-9214-0
+const G4double fTauoPsAl = 0.32*ns;
+const G4double foPsProbabilityAl = 0.12;
 
 //class MaterialExtension : public G4VMaterialExtension
 class MaterialExtension : public G4Material
@@ -28,6 +33,7 @@ class MaterialExtension : public G4Material
       void Set3gProbability(G4double);
 
       G4double Get3gFraction(); 
+      G4double GetoPsLifetime(){return foPslifetime;};
 
 
       G4bool IsTarget() {return fTarget;};
