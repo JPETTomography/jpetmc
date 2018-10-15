@@ -49,6 +49,12 @@ const int nSegments[layers] = {48,48,96}; ///< number of segments in each layer
 //const int nSegments[layers] = {2,2,2}; ///< number of segments in each layer
 const  G4bool checkOverlaps = false; ///< debugging purpose 
 
+// Fourth_Laer detector dimension
+//Re-dimension of scintillator for the foruth layer : 13.08.2018 SKS
+const G4double scinDim_xI = 2.5*cm; ///<  X dimension of simulated strip
+const G4double scinDim_yI = 0.6*cm; ///<  Y dimension of simulated strip
+
+
 const int extraLayers = 2;
 const int nSegmentsExtraLayers[2] = {96,96};
 const G4double radiusExtraLayers[2] = {509*mm, 533*mm};
@@ -91,9 +97,6 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void ConstructScintillators();
     //// create target used in run3 - big chamber no XAD material inside
     void ConstructTargetRun3();
-    //// create target used in run5 - small chamber + XAD material inside
-    void ConstructTargetRun5();
-
 
     G4int fRunNumber; ///< corresponds to JPET measurements; run 0 = user setup 
 
@@ -114,10 +117,9 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
     MaterialExtension* kapton;
     MaterialExtension* bigChamberMaterial;
-    MaterialExtension* smallChamberMaterial;
-    MaterialExtension* XADMaterial;
 
     G4LogicalVolume * scinLog;
+
     G4Cache<DetectorSD*>  detectorSD;
 
 

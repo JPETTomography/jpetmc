@@ -67,18 +67,12 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
      if(fLoadCADFrame)
      {
-       // ConstructFrameCAD();
+        ConstructFrameCAD();
      }
 
      if (fRunNumber == 3) {
          ConstructTargetRun3();
      }
-
-     if (fRunNumber == 5) {
-         ConstructTargetRun5();
-     }
-
-
 
     return worldPhysical;
 }
@@ -89,7 +83,7 @@ void DetectorConstruction::LoadGeometryForRun(G4int nr)
 {
     fRunNumber = nr;
 
-     if (fRunNumber == 3 ||fRunNumber == 5 || fRunNumber == 0) {
+     if (fRunNumber == 3 || fRunNumber == 0) {
         LoadFrame(true);  
      } else {
          G4Exception ("DetectorConstruction","DC02", FatalException, 
@@ -99,54 +93,6 @@ void DetectorConstruction::LoadGeometryForRun(G4int nr)
 }
 
 
-void DetectorConstruction::ConstructTargetRun5()
-{
-   G4RotationMatrix rot = G4RotationMatrix();
-
-   G4double z[] = {-7.6*cm, -7.0*cm, -6.9*cm, -4.3*cm, -4.2*cm, -2.7*cm, -2.6*cm, 2.6*cm, 2.7*cm, 4.2*cm, 4.3*cm, 6.9*cm, 7.0*cm, 7.6*cm }; 
-   G4double rInner[] = { 0*cm, 0*cm, 1.5*cm, 1.5*cm, 1.5*cm, 1.5*cm , 1.5*cm,  1.5*cm, 1.5*cm, 1.5*cm, 1.5*cm , 1.5*cm,  0*cm, 0*cm};
-   G4double rOuter[] = { 2.5*cm, 2.5*cm, 2.0*cm, 2.0*cm, 1.8*cm, 1.8*cm, 1.57*cm, 1.57*cm, 1.8*cm, 1.8*cm, 2.0*cm, 2.0*cm, 2.5*cm, 2.5*cm }; 
-
-   G4Polycone* smallChamber = new G4Polycone("bigChamber",0*degree,360*degree, 14 , z, rInner, rOuter);
-        
-
-   G4LogicalVolume * smallChamber_logical = new G4LogicalVolume(smallChamber, smallChamberMaterial, "smallChamber_logical");
-
-    G4VisAttributes* DetVisAtt =  new G4VisAttributes(G4Colour(0.9,0.9,.9));
-    DetVisAtt->SetForceWireframe(true);
-    DetVisAtt->SetForceSolid(true);
-    smallChamber_logical->SetVisAttributes(DetVisAtt);
-
-
-     G4ThreeVector loc = G4ThreeVector(0.0,0.0,0.0);
-     G4Transform3D transform(rot,loc);
-     new G4PVPlacement(transform,             //rotation,position
-                       smallChamber_logical,            //its logical volume
-                       "smallChamberGeom",             //its name
-                       worldLogical,      //its mother (logical) volume
-                       true,                 //no boolean operation
-                       0,                 //copy number
-                       checkOverlaps);       // checking overlaps 
-
-
-    G4Tubs* xadFilling = new G4Tubs("xadFilling",0*cm, 1.49*cm, 0.6*cm, 0*degree,360*degree);
-    G4LogicalVolume* xadFilling_logical = new G4LogicalVolume(xadFilling,XADMaterial,"xadFilling_logical");
-    G4VisAttributes* XADVisAtt =  new G4VisAttributes(G4Colour(0.2,0.3,.5));
-    XADVisAtt->SetForceWireframe(true);
-    XADVisAtt->SetForceSolid(true);
-
-    xadFilling_logical->SetVisAttributes(XADVisAtt);
-
-     new G4PVPlacement(transform,             //rotation,position
-                       xadFilling_logical,            //its logical volume
-                       "xadFillingGeom",             //its name
-                       worldLogical,      //its mother (logical) volume
-                       true,                 //no boolean operation
-                       0,                 //copy number
-                       checkOverlaps);       // checking overlaps 
-
-
-}
 
 void DetectorConstruction::ConstructTargetRun3()
 {
@@ -186,7 +132,7 @@ void DetectorConstruction::ConstructTargetRun3()
     G4Tubs* ringInner = new G4Tubs("ringInner",15*mm,20.8*mm,0.8*mm,0*degree,360*degree);
 
 
-    G4Box* conn = new G4Box("conn",25*mm,7.*mm,0.8*mm);
+    G4Box* conn = new G4Box("conn",31*mm,7.*mm,0.8*mm);
     G4LogicalVolume* conn_logical = new G4LogicalVolume(conn,bigChamberMaterial,"conn_logical");
     conn_logical->SetVisAttributes(DetVisAtt);
 
@@ -194,24 +140,24 @@ void DetectorConstruction::ConstructTargetRun3()
     G4ThreeVector loc2;
     G4Transform3D transform2;
 
-    loc2 = G4ThreeVector(39.8*mm,0.0,0.0);
+    loc2 = G4ThreeVector(49.8*mm,0.0,0.0);
     transform2 = G4Transform3D(rot,loc2);
     G4UnionSolid*  unionSolid =  new G4UnionSolid("c1", ringInner,conn,transform2);
 
-    loc2 = G4ThreeVector(-39.8*mm,0.0,0.0);
+    loc2 = G4ThreeVector(-49.8*mm,0.0,0.0);
     transform2 = G4Transform3D(rot,loc2);
     unionSolid =  new G4UnionSolid("c2", unionSolid,conn,transform2);
 
-    loc2 = G4ThreeVector(0.0,39.8*mm,0.0);
+    loc2 = G4ThreeVector(0.0,49.8*mm,0.0);
     transform2 = G4Transform3D(rot.rotateZ(90*degree),loc2);
     unionSolid =  new G4UnionSolid("c3", unionSolid,conn,transform2);
 
-    loc2 = G4ThreeVector(0.0,-39.8*mm,0.0);
+    loc2 = G4ThreeVector(0.0,-49.8*mm,0.0);
     transform2 = G4Transform3D(rot,loc2);
     unionSolid =  new G4UnionSolid("c4", unionSolid,conn,transform2);
 
     //G4Tubs* ringOuter = new G4Tubs("ringOuter",80*mm,95*mm,0.8*mm,0*degree,360*degree);
-    G4Tubs* ringOuter = new G4Tubs("ringOuter",60*mm,70*mm,0.8*mm,0*degree,360*degree);
+    G4Tubs* ringOuter = new G4Tubs("ringOuter",80*mm,90*mm,0.8*mm,0*degree,360*degree);
     unionSolid =  new G4UnionSolid("c5", unionSolid,ringOuter);
 
 
@@ -234,8 +180,7 @@ void DetectorConstruction::ConstructScintillators()
     // scintillator
     G4Box* scinBox = new G4Box("scinBox", scinDim_x/2.0 ,scinDim_y/2.0 , scinDim_z/2.0 );
     scinLog = new G4LogicalVolume(scinBox, scinMaterial , "scinLogical");
-    //G4VisAttributes* BoxVisAtt =  new G4VisAttributes(G4Colour(0.3,0.4,.9));
-    G4VisAttributes* BoxVisAtt =  new G4VisAttributes(G4Colour(0.447059,0.623529,0.811765));
+    G4VisAttributes* BoxVisAtt =  new G4VisAttributes(G4Colour(0.3,0.4,.9));
     BoxVisAtt->SetForceWireframe(true);
     BoxVisAtt->SetForceSolid(true);
     scinLog->SetVisAttributes(BoxVisAtt);
@@ -246,8 +191,7 @@ void DetectorConstruction::ConstructScintillators()
             scinDim_y/2.0+wrappingThickness , scinDim_z/2.0-1*cm );
     G4LogicalVolume* wrappingLog; 
 
-    G4VisAttributes* BoxVisAttWrapping =  new G4VisAttributes(G4Colour(0.447059,0.623529,0.811765));
-    //G4VisAttributes* BoxVisAttWrapping =  new G4VisAttributes(G4Colour(0.4,0.4,.4));
+    G4VisAttributes* BoxVisAttWrapping =  new G4VisAttributes(G4Colour(0.4,0.4,.4));
     BoxVisAttWrapping->SetForceWireframe(true);
     BoxVisAttWrapping->SetForceSolid(true);
 
@@ -305,6 +249,69 @@ void DetectorConstruction::ConstructScintillators()
 
         }
     }
+
+    //Fourth layer - currently kept seperated from the above loop : 15.10.2018
+
+        // The idea to form one module with 13 scintillators and then place it. To form module, envelope for the module was prepared
+
+
+        G4Box* SingleModule= new G4Box("Module",1.26*cm,4.51*cm,25.01*cm);
+        G4LogicalVolume* logicSingleModule = new G4LogicalVolume(SingleModule,
+                                                                 air,
+                                                                "Module");
+        // Make the envelope invisible
+        logicSingleModule->SetVisAttributes (G4VisAttributes::Invisible);
+
+
+        G4double radius1 = 38.186*cm;     // 24 modules as fourth layer
+
+
+        for(int j=-6; j<7; j++)                  // 13 modules
+        {
+
+            double ScinPlacement = j*0.7;        // distance between the centers of two consecutive modules
+
+            G4String name = "InnerSci_"+G4UIcommand::ConvertToString(icopy);
+
+            new G4PVPlacement(0,                                           //rotation
+                              G4ThreeVector(0,ScinPlacement*cm,0),         //position
+                              scinLog,                                    //its logical volume
+                              name,                                       //its name
+                              logicSingleModule,                          //its mother (logical) volume
+                              true,                                       //no boolean operation
+                              0,
+                              checkOverlaps);                             // checking overlaps
+
+
+          }
+
+         G4int ModuleNo=1;
+
+        // 24 module placement as the fourth layer
+
+        for(int i=0; i<24; i++)
+        {
+
+
+            G4double phiI = (i*2*M_PI/24.);
+            G4RotationMatrix rot = G4RotationMatrix();
+            rot.rotateZ(phiI);
+  //          G4double rotation = phi*i;
+            G4ThreeVector loc = G4ThreeVector(radius1*cos(phiI),radius1*sin(phiI),0.0);  // Angular displacement in the modules
+            G4Transform3D transform(rot,loc);
+            G4String name = "Module_"+G4UIcommand::ConvertToString(ModuleNo);
+            new G4PVPlacement(transform,
+                              logicSingleModule,             //its logical volume
+                              name,                          //its name
+                              worldLogical,                  //its mother  volume
+                              false,                         //no boolean operation
+                              ModuleNo,                      //copy number
+                              checkOverlaps);                // checking overlaps
+
+            ModuleNo++;
+
+        }
+
 }
 
 void DetectorConstruction::InitializeMaterials()
@@ -316,7 +323,6 @@ void DetectorConstruction::InitializeMaterials()
     nistManager->FindOrBuildMaterial("G4_Al");
     nistManager->FindOrBuildMaterial("G4_KAPTON");
     nistManager->FindOrBuildMaterial("G4_Galactic");
-    nistManager->FindOrBuildMaterial("G4_POLYSTYRENE");
 
     //air = G4Material::GetMaterial("G4_AIR"); 
     //scinMaterial      =G4Material::GetMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
@@ -334,19 +340,6 @@ void DetectorConstruction::InitializeMaterials()
     bigChamberMaterial->AllowsAnnihilations(true); 
     bigChamberMaterial->Set3gProbability(foPsProbabilityAl); 
     bigChamberMaterial->SetoPsLifetime(fTauoPsAl); 
-
-    smallChamberMaterial = new MaterialExtension("smallChamber", G4Material::GetMaterial("G4_Al"));
-    smallChamberMaterial->AllowsAnnihilations(true); 
-    smallChamberMaterial->Set3gProbability(foPsProbabilityAl); 
-    smallChamberMaterial->SetoPsLifetime(fTauoPsAl); 
-
-    //  /// https://www.sigmaaldrich.com/catalog/product/sigma/xad4
-    XADMaterial = new MaterialExtension("XAD", G4Material::GetMaterial("G4_POLYSTYRENE"));
-    XADMaterial->AllowsAnnihilations(true); 
-    XADMaterial->Set3gProbability(foPsProbabilityAl); 
-    XADMaterial->SetoPsLifetime(fTauoPsAl); 
-
-
 }
 
 
@@ -358,7 +351,8 @@ void DetectorConstruction::ConstructFrameCAD()
      //    true      2.1 cm      0.9 cm
      //    used in stl       2.6 cm      1.7 cm
 
-     CADMesh * mesh1 = new CADMesh((char*)"stl_geometry/Frame_JPET.stl" );
+   //  CADMesh * mesh1 = new CADMesh((char*)"stl_geometry/Frame_JPET.stl" );
+     CADMesh * mesh1 = new CADMesh((char*)"stl_geometry/Frame5_JPET.stl" );
      mesh1->SetScale(mm);
      G4VSolid* cad_solid1 = mesh1->TessellatedMesh();
 
@@ -371,7 +365,10 @@ void DetectorConstruction::ConstructFrameCAD()
 
      G4RotationMatrix rot = G4RotationMatrix();
      rot.rotateY(90*deg);
-     G4ThreeVector loc = G4ThreeVector(0*cm, 306.5*cm ,-23*cm);
+   //  G4ThreeVector loc = G4ThreeVector(0*cm, 306.5*cm ,-23*cm);
+
+     G4ThreeVector loc = G4ThreeVector(0.03*cm, 191.42*cm ,-23*cm);
+
      G4Transform3D transform(rot,loc);
 
      new G4PVPlacement(transform,             //rotation,position
