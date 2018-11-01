@@ -40,12 +40,12 @@ void BeamParams::SetPolarization(G4ThreeVector v)
 {
     polarization=v;
     polarization = polarization.unit();
-};
+}
 
 void BeamParams::SetMomentum(G4ThreeVector v)
 {
     momentum=v;
     momentum = momentum.unit();
-};
+}
 
 

@@ -24,7 +24,7 @@ class JPetGeantEventPack : public TObject
         JPetGeantScinHits* GetHit(int i){return dynamic_cast<JPetGeantScinHits*>(fMCHits[i]);};
         JPetGeantDecayTree* GetDecayTree(int i){return dynamic_cast<JPetGeantDecayTree*>(fMCDecayTrees[i]);};
 
-        JPetGeantEventInformation* GetEventInformation(){return fGenInfo;};;
+        JPetGeantEventInformation* GetEventInformation(){return fGenInfo;};
 
         unsigned int GetNumberOfHits(){ return fHitIndex;};
         unsigned int GetNumberOfDecayTrees(){ return fMCDecayTreesIndex;};

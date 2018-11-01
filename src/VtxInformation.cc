@@ -14,7 +14,7 @@ void VtxInformation::SetVtxPosition(G4double x, G4double y, G4double z)
     fVtxPosition.setX(x);
     fVtxPosition.setY(y);
     fVtxPosition.setZ(z);
-};
+}
 
 
 void VtxInformation::Clear()
