@@ -1,4 +1,4 @@
-#include "MaterialExtension.hh"
+#include "MaterialExtension.h"
 
 
 //MaterialExtension::MaterialExtension(G4Material* mat,const G4String& name):

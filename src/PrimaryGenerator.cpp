@@ -1,4 +1,4 @@
-#include "PrimaryGenerator.hh"
+#include "PrimaryGenerator.h"
 #include "G4SystemOfUnits.hh"
 
 #include "G4HadPhaseSpaceGenbod.hh"
@@ -15,8 +15,8 @@
 #include "G4PhysicalConstants.hh"
 #include "G4Circle.hh"
 
-#include "VtxInformation.hh"
-#include "PrimaryParticleInformation.hh"
+#include "VtxInformation.h"
+#include "PrimaryParticleInformation.h"
 
 
 

@@ -1,10 +1,10 @@
-#include "ActionInitialization.hh"
-#include "PrimaryGeneratorAction.hh"
-#include "RunAction.hh"
-#include "HistoManager.hh"
-#include "EventAction.hh"
-#include "TrackingAction.hh"
-#include "SteppingAction.hh"
+#include "ActionInitialization.h"
+#include "PrimaryGeneratorAction.h"
+#include "RunAction.h"
+#include "HistoManager.h"
+#include "EventAction.h"
+#include "TrackingAction.h"
+#include "SteppingAction.h"
 
 
 ActionInitialization::ActionInitialization()

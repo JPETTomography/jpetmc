@@ -4,8 +4,8 @@ cmake_minimum_required (VERSION 2.6)
 project(jpet_mc)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc  ${PROJECT_SOURCE_DIR}/src/*.cpp)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh  ${PROJECT_SOURCE_DIR}/include/*.h)
+file(GLOB sources   ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB headers   ${PROJECT_SOURCE_DIR}/include/*.h)
 set(CMAKE_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wunused-parameter ")

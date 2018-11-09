@@ -1,4 +1,4 @@
-#include "SteppingAction.hh"
+#include "SteppingAction.h"
 #include "G4TransportationManager.hh" 
 
 SteppingAction::SteppingAction()

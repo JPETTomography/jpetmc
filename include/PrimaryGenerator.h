@@ -4,11 +4,11 @@
 #include "G4Event.hh"
 #include "G4PrimaryVertex.hh"
 #include "G4VPrimaryGenerator.hh"
-#include "MaterialExtension.hh"
+#include "MaterialExtension.h"
 #include<TGenPhaseSpace.h> 
 #include<TLorentzVector.h>
-#include "BeamParams.hh"
-#include "SourceParams.hh"
+#include "BeamParams.h"
+#include "SourceParams.h"
 
 
 class PrimaryGenerator : public G4VPrimaryGenerator 

@@ -1,4 +1,4 @@
-#include "PrimaryParticleInformation.hh"
+#include "PrimaryParticleInformation.h"
 
 PrimaryParticleInformation::PrimaryParticleInformation()
     :fIndex(0), fDecayMultiplicity(0)

@@ -1,4 +1,4 @@
-#include "RunAction.hh"
+#include "RunAction.h"
 #include "G4Run.hh"
 #include "G4UnitsTable.hh"
 #include "G4SystemOfUnits.hh"

@@ -1,14 +1,14 @@
-#include "EventAction.hh"
+#include "EventAction.h"
 #include "G4PrimaryParticle.hh"
 #include "G4ParticleDefinition.hh"
 #include "G4Event.hh"
 
-#include "Trajectory.hh"
+#include "Trajectory.h"
 #include "G4TrajectoryContainer.hh"
 
 #include "G4EventManager.hh"
 #include "G4SDManager.hh"
-#include "DetectorHit.hh"
+#include "DetectorHit.h"
 
 
 EventAction::EventAction(HistoManager* histo )

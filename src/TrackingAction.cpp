@@ -1,7 +1,7 @@
 #include "G4Track.hh"
 #include "G4TrackingManager.hh"
-#include "TrackingAction.hh"
-#include "Trajectory.hh"
+#include "TrackingAction.h"
+#include "Trajectory.h"
 
 void TrackingAction::PreUserTrackingAction(const G4Track* aTrack)
 {

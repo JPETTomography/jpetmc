@@ -3,13 +3,13 @@
 
 #include "G4VUserPrimaryGeneratorAction.hh"
 #include "globals.hh"
-#include "PrimaryGenerator.hh"
+#include "PrimaryGenerator.h"
 #include "G4Event.hh"
-#include "HistoManager.hh"
-#include "PrimaryGeneratorActionMessenger.hh"
+#include "HistoManager.h"
+#include "PrimaryGeneratorActionMessenger.h"
 
-#include "BeamParams.hh"
-#include "SourceParams.hh"
+#include "BeamParams.h"
+#include "SourceParams.h"
 
 
 struct IsotopeParams

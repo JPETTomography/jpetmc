@@ -1,4 +1,4 @@
-#include "DetectorConstructionMessenger.hh"
+#include "DetectorConstructionMessenger.h"
 
 
 DetectorConstructionMessenger::DetectorConstructionMessenger(DetectorConstruction* detector)

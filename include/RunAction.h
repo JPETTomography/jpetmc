@@ -3,7 +3,7 @@
 #include "G4UserRunAction.hh"
 #include "globals.hh"
 
-#include "HistoManager.hh"
+#include "HistoManager.h"
 
 
 class G4Run;

@@ -2,7 +2,7 @@
 #define DetectorSD_h 1
 
 #include "G4VSensitiveDetector.hh"
-#include "DetectorHit.hh"
+#include "DetectorHit.h"
 
 class DetectorSD : public G4VSensitiveDetector
 {

@@ -3,7 +3,7 @@
 
 #include "globals.hh"
 #include "G4VUserDetectorConstruction.hh"
-#include "DetectorSD.hh"
+#include "DetectorSD.h"
 
 #include "G4SystemOfUnits.hh"
 #include "G4Box.hh"
@@ -24,7 +24,7 @@
 #include "CADMesh.hh"
 #include <string>
 
-#include "MaterialExtension.hh"
+#include "MaterialExtension.h"
 
 #include "G4Cache.hh"
 

@@ -1,4 +1,4 @@
-#include "SourceParams.hh"
+#include "SourceParams.h"
 
 SourceParams::SourceParams()
     : howManyGammas(1), shape("cylinder"),shapeCenterPosition(0,0,0)

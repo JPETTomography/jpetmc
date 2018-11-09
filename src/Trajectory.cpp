@@ -1,4 +1,4 @@
-#include "Trajectory.hh"
+#include "Trajectory.h"
 #include "G4ParticleTable.hh"
 #include "G4ParticleTypes.hh"
 #include "G4Polyline.hh"

@@ -1,5 +1,5 @@
-#include "PrimaryGeneratorAction.hh"
-#include "DetectorConstruction.hh" 
+#include "PrimaryGeneratorAction.h"
+#include "DetectorConstruction.h" 
 #include "G4PrimaryVertex.hh"
 
 

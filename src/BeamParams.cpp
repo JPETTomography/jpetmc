@@ -1,4 +1,4 @@
-#include "BeamParams.hh"
+#include "BeamParams.h"
 
 BeamParams::BeamParams()
 {

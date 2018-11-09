@@ -3,7 +3,7 @@
 
 #include "G4UserEventAction.hh"
 #include "globals.hh" 
-#include "HistoManager.hh"
+#include "HistoManager.h"
 #include "JPetGeantDecayTree.h"
 #include "JPetGeantScinHits.h"
 #include <memory>

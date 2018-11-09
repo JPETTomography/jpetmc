@@ -1,7 +1,7 @@
-#include "DetectorSD.hh"
+#include "DetectorSD.h"
 #include "G4VProcess.hh"
 #include "G4PrimaryParticle.hh"
-#include "PrimaryParticleInformation.hh"
+#include "PrimaryParticleInformation.h"
 
 DetectorSD::DetectorSD(G4String name)
     :G4VSensitiveDetector(name)

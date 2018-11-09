@@ -1,4 +1,4 @@
-#include "VtxInformation.hh"
+#include "VtxInformation.h"
 
 VtxInformation::VtxInformation()
     :fVtxPosition(0), fTwoGammaGen(false), fThreeGammaGen(false), fPromptGammaGen(false), fnRun(0), fLifetime(0)

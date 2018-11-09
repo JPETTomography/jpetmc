@@ -1,4 +1,4 @@
-#include "HistoManager.hh"
+#include "HistoManager.h"
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
 

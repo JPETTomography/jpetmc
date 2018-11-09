@@ -1,5 +1,5 @@
-#include "PrimaryGeneratorActionMessenger.hh"
-#include "PrimaryGeneratorAction.hh"
+#include "PrimaryGeneratorActionMessenger.h"
+#include "PrimaryGeneratorAction.h"
 
 PrimaryGeneratorActionMessenger::PrimaryGeneratorActionMessenger(PrimaryGeneratorAction* primGeneratorAction)
     :fPrimGen(primGeneratorAction)

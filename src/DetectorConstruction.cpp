@@ -1,4 +1,4 @@
-#include "DetectorConstruction.hh"
+#include "DetectorConstruction.h"
 #include "G4UnionSolid.hh"
 #include "G4SubtractionSolid.hh"
 #include "G4Tubs.hh"
@@ -11,7 +11,7 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4RegionStore.hh"
 
-#include "DetectorConstructionMessenger.hh"
+#include "DetectorConstructionMessenger.h"
 
 DetectorConstruction* DetectorConstruction::fInstance = 0;
 

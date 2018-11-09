@@ -9,8 +9,8 @@
 #include "JPetGeantScinHits.h"
 #include "JPetGeantEventPack.h"
 #include "JPetGeantEventInformation.h"
-#include "DetectorHit.hh"
-#include "VtxInformation.hh"
+#include "DetectorHit.h"
+#include "VtxInformation.h"
 
 
 class TFile;
