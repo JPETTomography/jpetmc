@@ -87,7 +87,8 @@ void PrimaryGenerator::GenerateEvtChamberRun3(G4Event* event)
 void PrimaryGenerator::GenerateBeam(BeamParams* beamParams, G4Event* event)
 {
 
-    G4PrimaryVertex* vertex = new G4PrimaryVertex(beamParams->GetVtx(),0);
+      G4ThreeVector vtxCoor = beamParams->GetVtx();
+    G4PrimaryVertex* vertex = new G4PrimaryVertex(vtxCoor,0);
 
     G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
     G4ParticleDefinition* particleDefinition = particleTable->FindParticle("gamma");
@@ -104,6 +105,10 @@ void PrimaryGenerator::GenerateBeam(BeamParams* beamParams, G4Event* event)
             px, py, pz,ene);
 
     vertex->SetPrimary(particle1);
+    VtxInformation* infoPrompt = new VtxInformation();
+    vertex->SetUserInformation(infoPrompt);
+    infoPrompt->SetPromptGammaGen(true);
+    infoPrompt->SetVtxPosition(vtxCoor.x()/cm,vtxCoor.y()/cm,vtxCoor.z()/cm);
 
     event->AddPrimaryVertex(vertex);
 }

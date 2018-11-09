@@ -7,6 +7,7 @@
 
 
 HistoManager::HistoManager()
+: fMakeControlHisto(true)
 {
     fEventPack = new JPetGeantEventPack();
     fGeantInfo =  fEventPack->GetEventInformation();
@@ -35,6 +36,43 @@ void HistoManager::Book()
     fTree->SetAutoSave(1000000000); // autosave when 1 Gbyte written
     fBranchEventPack = fTree->Branch("eventPack", &fEventPack, bufsize, splitlevel);
 
+      if ( IsHistoCreated()){
+            BookHistograms(); 
+      }
+}
+
+void HistoManager::BookHistograms()
+{
+
+      /// histograms - registered hits parameters
+      fHisto[0] = new TH1F("gen_gamma_multiplicity","Generated gammas multiplicity",10,0,10);
+    fHisto[1] = new TH1F("gen_hit_time","Gen hit time",100, 0.0, 15000.0);
+    fHisto[2] = new TH1F("gen_hit_eneDepos","Gen hit ene deposition",750, 0.0, 1500.0);
+    fHisto[3] = new TH1F("gen_hits_z_pos", "gen hits Z position",100, -60.0, 60.0);
+    fHisto2D[0] = new TH2F("gen_hits_xy_pos","GEN hits XY pos",
+      121, -60.5, 60.5,121, -60.5, 60.5);
+
+
+    /// histograms - source position
+    fHisto[4] = new TH1F("gen_lifetime","Gen lifetime",100, 0.0, 1500.0);
+    fHisto[5] = new TH1F("gen_prompt_lifetime","Gen prompt lifetime",100, 0.0, 1500.0);
+
+
+    fHisto2D[1] = new TH2F("gen_XY","GEN XY coordinates of annihilation point",
+    121, -60.5, 60.5,121, -60.5, 60.5);
+    fHisto2D[2] = new TH2F("gen_XZ","GEN XZ coordinates of annihilation point",
+          121, -60.5, 60.5,121, -60.5, 60.5);
+    fHisto2D[3] = new TH2F("gen_YZ","GEN YZ coordinates of  annihilation point",
+          121, -60.5, 60.5,121, -60.5, 60.5);
+    fHisto2D[4] = new TH2F("gen_prompt_XY","GEN prompt XY coordinates of annihilation point",
+    121, -60.5, 60.5,121, -60.5, 60.5);
+    fHisto2D[5] = new TH2F("gen_prompt_XZ","GEN prompt XZ coordinates of annihilation point",
+          121, -60.5, 60.5,121, -60.5, 60.5);
+    fHisto2D[6] = new TH2F("gen_prompt_YZ","GEN prompt YZ coordinates of  annihilation point",
+            121, -60.5, 60.5,121, -60.5, 60.5);
+
+            
+
 }
 
 void HistoManager::AddGenInfo(VtxInformation* info)
@@ -50,6 +88,18 @@ void HistoManager::AddGenInfo(VtxInformation* info)
         fGeantInfo->SetVtxPosition(info->GetVtxPositionX(),info->GetVtxPositionY(),info->GetVtxPositionZ());
         fGeantInfo->SetLifetime(info->GetLifetime());
         fGeantInfo->SetRunNr(info->GetRunNr());
+
+            if ( IsHistoCreated()){
+                  if(is2g) fHisto[0]->Fill(2);
+                  if(is3g) fHisto[0]->Fill(3);
+            
+                  fHisto[4]->Fill(info->GetLifetime());
+                  fHisto2D[1]->Fill(info->GetVtxPositionX(),info->GetVtxPositionY());
+                  fHisto2D[2]->Fill(info->GetVtxPositionX(),info->GetVtxPositionZ());
+                  fHisto2D[3]->Fill(info->GetVtxPositionY(),info->GetVtxPositionZ());
+            }
+
+
     }
 
     if (isprompt)
@@ -57,9 +107,19 @@ void HistoManager::AddGenInfo(VtxInformation* info)
         fGeantInfo->SetPromptGammaGen(isprompt);
         fGeantInfo->SetPromptLifetime(info->GetLifetime());
         fGeantInfo->SetVtxPromptPosition(info->GetVtxPositionX(),info->GetVtxPositionY(),info->GetVtxPositionZ());
+        fGeantInfo->SetRunNr(info->GetRunNr());
+
+            if ( IsHistoCreated()){
+                  fHisto[0]->Fill(1);
+                  fHisto[5]->Fill(info->GetLifetime());
+                  fHisto2D[4]->Fill(info->GetVtxPositionX(),info->GetVtxPositionY());
+                  fHisto2D[5]->Fill(info->GetVtxPositionX(),info->GetVtxPositionZ());
+                  fHisto2D[6]->Fill(info->GetVtxPositionY(),info->GetVtxPositionZ());
+            }
+
     }
 
-
+      
 }
 
 void HistoManager::AddNewHit(DetectorHit* hit)
@@ -105,6 +165,16 @@ void HistoManager::AddNewHit(DetectorHit* hit)
 
     geantHit->SetGenGammaMultiplicity(hit->GetGenGammaMultiplicity());
     geantHit->SetGenGammaIndex(hit->GetGenGammaIndex());
+
+
+      if ( IsHistoCreated()){
+            fHisto[1]->Fill(hit->GetTime()/ps);
+            fHisto[2]->Fill(hit->GetEdep()/keV);
+            fHisto[3]->Fill(hit->GetPosition().getZ()/cm);
+            fHisto2D[0]->Fill(hit->GetPosition().getX()/cm,
+            hit->GetPosition().getY()/cm);
+
+      }
 }
 
 
@@ -115,6 +185,11 @@ void HistoManager::Save()
     if (! fRootFile) return;
      //fRootFile->Write(); 
      fTree->Write();
+
+      if ( IsHistoCreated()){
+            for(int i=0; i<MaxHisto; i++) fHisto[i]->Write();
+            for(int i=0; i<MaxHisto2D; i++) fHisto2D[i]->Write();
+      }
      fRootFile->Close(); 
 
     G4cout << "\n----> Histograms and ntuples are saved\n" << G4endl;
