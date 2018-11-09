@@ -181,7 +181,7 @@ void DetectorConstruction::ConstructScintillators()
     G4Box* scinBox = new G4Box("scinBox", scinDim_x/2.0 ,scinDim_y/2.0 , scinDim_z/2.0 );
     scinLog = new G4LogicalVolume(scinBox, scinMaterial , "scinLogical");
     G4VisAttributes* BoxVisAtt =  new G4VisAttributes(G4Colour(0.3,0.4,.9));
-    BoxVisAtt->SetForceWireframe(true);
+   // BoxVisAtt->SetForceWireframe(true);
     BoxVisAtt->SetForceSolid(true);
     scinLog->SetVisAttributes(BoxVisAtt);
 
@@ -226,6 +226,7 @@ void DetectorConstruction::ConstructScintillators()
                               checkOverlaps);       // checking overlaps 
 
 
+
              if(fLoadWrapping) 
              {
              // wrapping 
@@ -245,6 +246,8 @@ void DetectorConstruction::ConstructScintillators()
                               checkOverlaps);       // checking overlaps 
               }
 
+
+
             icopy++;
 
         }
@@ -252,10 +255,11 @@ void DetectorConstruction::ConstructScintillators()
 
     //Fourth layer - currently kept seperated from the above loop : 15.10.2018
 
-        // The idea to form one module with 13 scintillators and then place it. To form module, envelope for the module was prepared
+    // The idea to form one module with 13 scintillators and then place it. To form module, envelope for the module was prepared
 
-
-        G4Box* SingleModule= new G4Box("Module",1.26*cm,4.51*cm,25.01*cm);
+ 
+/*       
+	 G4Box* SingleModule= new G4Box("Module",1.26*cm,4.51*cm,25.01*cm);
         G4LogicalVolume* logicSingleModule = new G4LogicalVolume(SingleModule,
                                                                  air,
                                                                 "Module");
@@ -275,7 +279,7 @@ void DetectorConstruction::ConstructScintillators()
 
             new G4PVPlacement(0,                                           //rotation
                               G4ThreeVector(0,ScinPlacement*cm,0),         //position
-                              scinLog,                                    //its logical volume
+                              scinLogI,                                    //its logical volume
                               name,                                       //its name
                               logicSingleModule,                          //its mother (logical) volume
                               true,                                       //no boolean operation
@@ -311,6 +315,61 @@ void DetectorConstruction::ConstructScintillators()
             ModuleNo++;
 
         }
+
+   */
+
+// Fourth layer, scintillators are tagged with copy numbers - I personally prefer this version of placements
+
+
+           G4Box* scinBoxI= new G4Box("scinBoxI", scinDim_xI/2.0, scinDim_yI/2.0, scinDim_z/2.0);
+            scinLogI = new G4LogicalVolume(scinBoxI, scinMaterial , "scinLogicalI");
+
+            G4VisAttributes* BoxVisAttI=  new G4VisAttributes(G4Colour(1.,0.1,1.));
+            BoxVisAttI->SetForceSolid(true);
+            scinLogI->SetVisAttributes(BoxVisAttI);
+
+            const G4int modules = 24;
+            G4int module;
+            G4double phi1,radius0 = 38.186*cm;
+
+             G4int icopyI=193;
+
+            for(int i=0; i<24; i++)
+            {
+                module=0;
+                G4double phi = (i*2*M_PI/modules);
+
+                for(int j=-6; j<7; j++)                                             // 13 modules                                         SKS
+                {
+                   phi1=phi+j*0.01815;                                              //  Angular displacement (1.04 degree - fixed)        SKS
+
+
+                    G4double radius1=(radius0/cos(j*0.01815));
+
+                    G4RotationMatrix rot = G4RotationMatrix();
+
+                    rot.rotateZ(phi);
+
+                    G4ThreeVector loc = G4ThreeVector(radius1*cos(phi1),radius1*sin(phi1),0.0);
+
+                    G4Transform3D transform(rot,loc);
+
+                    G4String nameNewI = "scin_" + G4UIcommand::ConvertToString(icopyI);
+
+                    new G4PVPlacement(transform,             //rotation,position
+                                      scinLogI,               //its logical volume
+                                      nameNewI,                  //its name
+                                      worldLogical,           //its mother (logical) volume
+                                      true,                 //no boolean operation
+                                      icopyI,                 //copy number
+                                      checkOverlaps);       // checking overlaps
+                    icopyI++;
+
+                   module++;
+
+
+                }
+    }
 
 }
 
@@ -351,8 +410,9 @@ void DetectorConstruction::ConstructFrameCAD()
      //    true      2.1 cm      0.9 cm
      //    used in stl       2.6 cm      1.7 cm
 
-   //  CADMesh * mesh1 = new CADMesh((char*)"stl_geometry/Frame_JPET.stl" );
-     CADMesh * mesh1 = new CADMesh((char*)"stl_geometry/Frame5_JPET.stl" );
+     CADMesh * mesh1 = new CADMesh((char*)"stl_geometry/Frame_JPET.stl" );
+   //  CADMesh * mesh1 = new CADMesh((char*)"Frame_JPET.stl" );
+   //  CADMesh * mesh1 = new CADMesh((char*)"stl_geometry/Frame5_JPET.stl" );
      mesh1->SetScale(mm);
      G4VSolid* cad_solid1 = mesh1->TessellatedMesh();
 
@@ -365,9 +425,9 @@ void DetectorConstruction::ConstructFrameCAD()
 
      G4RotationMatrix rot = G4RotationMatrix();
      rot.rotateY(90*deg);
-   //  G4ThreeVector loc = G4ThreeVector(0*cm, 306.5*cm ,-23*cm);
+     G4ThreeVector loc = G4ThreeVector(0*cm, 306.5*cm ,-23*cm);
 
-     G4ThreeVector loc = G4ThreeVector(0.03*cm, 191.42*cm ,-23*cm);
+   //  G4ThreeVector loc = G4ThreeVector(0.03*cm, 191.42*cm ,-23*cm);
 
      G4Transform3D transform(rot,loc);
 
@@ -389,5 +449,5 @@ void DetectorConstruction::ConstructSDandField()
         }
         G4SDManager::GetSDMpointer()->AddNewDetector(detectorSD.Get());
         SetSensitiveDetector(scinLog,detectorSD.Get());
-
+        SetSensitiveDetector(scinLogI,detectorSD.Get());
 }

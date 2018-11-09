@@ -119,7 +119,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     MaterialExtension* bigChamberMaterial;
 
     G4LogicalVolume * scinLog;
-
+    G4LogicalVolume * scinLogI;
     G4Cache<DetectorSD*>  detectorSD;
 
 
