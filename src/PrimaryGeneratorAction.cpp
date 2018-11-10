@@ -38,8 +38,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 
 
     if( GetSourceTypeInfo() == ("run")) {
-        if (nRun == 3 || nRun == 5) {
-            fPrimaryGenerator->GenerateEvtChamberRun3(event);
+        if (nRun == 3) {
+            fPrimaryGenerator->GenerateEvtChamberWithSodiumAndPorousMaterial(event,2.5,2.5,7.6);
+        } else if (nRun == 5) {
+            fPrimaryGenerator->GenerateEvtChamberWithSodiumAndPorousMaterial(event,10.0,10.0,20.0);
+        } else if (nRun == 6) {
+            fPrimaryGenerator->GenerateEvtChamberWithSodiumAndPorousMaterial(event,15.0,15.0,31.0);
         } else {
           G4Exception("PrimaryGeneratorAction","PG05",FatalException,
                  "Called run with non-exisitng geometry");

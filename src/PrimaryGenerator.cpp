@@ -28,7 +28,7 @@ PrimaryGenerator::PrimaryGenerator()
 PrimaryGenerator::~PrimaryGenerator()
 {}
 
-void PrimaryGenerator::GenerateEvtChamberRun3(G4Event* event)
+void PrimaryGenerator::GenerateEvtChamberWithSodiumAndPorousMaterial(G4Event* event, G4double maxXhalf, G4double maxYhalf, G4double maxZhalf)
 {
 
     G4ThreeVector vtxPosition; // 2g/3g
@@ -36,7 +36,7 @@ void PrimaryGenerator::GenerateEvtChamberRun3(G4Event* event)
          =  VertexUniformInCylinder(1.5*cm,0.2*cm);
     G4double ratio3g;
     G4double lifetime3g; 
-    std::tie(vtxPosition, ratio3g, lifetime3g) = GetVerticesDistribution();
+    std::tie(vtxPosition, ratio3g, lifetime3g) = GetVerticesDistribution(maxXhalf,maxYhalf,maxZhalf);
 
     G4PrimaryVertex* vertex;
     vertex = new G4PrimaryVertex();
@@ -210,7 +210,7 @@ G4ThreeVector PrimaryGenerator::VertexUniformInCylinder(G4double rIn, G4double z
 
 
 
-std::tuple<G4ThreeVector,G4double,G4double> PrimaryGenerator::GetVerticesDistribution()
+std::tuple<G4ThreeVector,G4double,G4double> PrimaryGenerator::GetVerticesDistribution(G4double maxXhalf, G4double maxYhalf, G4double maxZhalf)
 {
 
     G4bool lookForVtx = false;
@@ -222,9 +222,9 @@ std::tuple<G4ThreeVector,G4double,G4double> PrimaryGenerator::GetVerticesDistrib
     // now assumed equal distribution in the target - this may be modified in the future
     while (!lookForVtx)
     {
-        G4double x_tmp = 10.*(2*G4UniformRand() - 1)*cm;
-        G4double y_tmp = 10.*(2*G4UniformRand() - 1)*cm;
-        G4double z_tmp = 26.*(2*G4UniformRand() - 1)*cm;
+        G4double x_tmp = maxXhalf*(2*G4UniformRand() - 1)*cm;
+        G4double y_tmp = maxYhalf*(2*G4UniformRand() - 1)*cm;
+        G4double z_tmp = maxZhalf*(2*G4UniformRand() - 1)*cm;
 
         myPoint.setX(x_tmp);
         myPoint.setY(y_tmp);

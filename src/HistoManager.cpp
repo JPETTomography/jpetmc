@@ -59,17 +59,17 @@ void HistoManager::BookHistograms()
 
 
     fHisto2D[1] = new TH2F("gen_XY","GEN XY coordinates of annihilation point",
-    121, -60.5, 60.5,121, -60.5, 60.5);
+    121, -20.5, 20.5,121, -20.5, 20.5);
     fHisto2D[2] = new TH2F("gen_XZ","GEN XZ coordinates of annihilation point",
-          121, -60.5, 60.5,121, -60.5, 60.5);
+          121, -20.5, 20.5,121, -60.5, 60.5);
     fHisto2D[3] = new TH2F("gen_YZ","GEN YZ coordinates of  annihilation point",
-          121, -60.5, 60.5,121, -60.5, 60.5);
+          121, -20.5, 20.5,121, -60.5, 60.5);
     fHisto2D[4] = new TH2F("gen_prompt_XY","GEN prompt XY coordinates of annihilation point",
-    121, -60.5, 60.5,121, -60.5, 60.5);
+    121, -20.5, 20.5,121, -20.5, 20.5);
     fHisto2D[5] = new TH2F("gen_prompt_XZ","GEN prompt XZ coordinates of annihilation point",
-          121, -60.5, 60.5,121, -60.5, 60.5);
+          121, -20.5, 20.5,121, -60.5, 60.5);
     fHisto2D[6] = new TH2F("gen_prompt_YZ","GEN prompt YZ coordinates of  annihilation point",
-            121, -60.5, 60.5,121, -60.5, 60.5);
+            121, -20.5, 20.5,121, -60.5, 60.5);
 
             
 

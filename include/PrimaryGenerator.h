@@ -18,15 +18,14 @@ class PrimaryGenerator : public G4VPrimaryGenerator
         ~PrimaryGenerator();
         void GenerateBeam(BeamParams*, G4Event* );
         void GenerateIsotope(SourceParams*, G4Event* );
-        void GenerateEvtChamberRun3(G4Event*);
+        void GenerateEvtChamberWithSodiumAndPorousMaterial(G4Event* event, G4double maxXhalf, G4double maxYhalf, G4double maxZhalf); ///< as input the maximal dimension(/2) of annihilation chamber are passed (to speed up)
 
     public:
          virtual void GeneratePrimaryVertex(G4Event*);
 
      private:
 
-         // return: vtx position, 2/3g ratio, meanlifetime
-         std::tuple<G4ThreeVector,G4double,G4double> GetVerticesDistribution(); 
+         std::tuple<G4ThreeVector,G4double,G4double> GetVerticesDistribution(G4double,G4double,G4double);  ///< return: vtx position, 2/3g ratio, meanlifetime; as input the maximal dimension(/2) of annihilation chamber are taken (to speed up simulatons)
         void GenerateTwoGammaVertex(G4PrimaryVertex*);
         void GenerateThreeGammaVertex(G4PrimaryVertex*);
         void GeneratePromptGammaSodium(G4PrimaryVertex*);

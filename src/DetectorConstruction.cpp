@@ -78,6 +78,11 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
          ConstructTargetRun5();
      }
 
+     if (fRunNumber == 6) {
+         ConstructTargetRun6();
+     }
+
+
 
 
     return worldPhysical;
@@ -89,7 +94,7 @@ void DetectorConstruction::LoadGeometryForRun(G4int nr)
 {
     fRunNumber = nr;
 
-     if (fRunNumber == 3 ||fRunNumber == 5 || fRunNumber == 0) {
+     if (fRunNumber == 3 ||fRunNumber == 5 ||fRunNumber == 6 || fRunNumber == 0) {
         LoadFrame(true);  
      } else {
          G4Exception ("DetectorConstruction","DC02", FatalException, 
@@ -97,6 +102,115 @@ void DetectorConstruction::LoadGeometryForRun(G4int nr)
      }
 
 }
+
+
+void DetectorConstruction::ConstructTargetRun6()
+{
+   G4RotationMatrix rot = G4RotationMatrix();
+
+   G4double z[] =      {-31.0*cm, -29.0*cm, -28.9*cm, -28*cm, -27.9*cm, 27.9*cm, 28*cm, 28.9*cm, 29*cm,  31*cm }; 
+   G4double rInner[] = { 0*cm,    0*cm,     0*cm,      0*cm,   12.2*cm, 12.2*cm, 0*cm,  0*cm,    0*cm,   0*cm };
+   G4double rOuter[] = { 12.7*cm, 12.7*cm,  15*cm,    15*cm,   12.5*cm, 12.5*cm, 15*cm, 15*cm,   12.7*cm, 12.7*cm }; 
+
+   G4Polycone* bigChamber = new G4Polycone("bigChamber",0*degree,360*degree, 10 , z, rInner, rOuter);
+        
+
+   G4LogicalVolume * bigChamber_logical = new G4LogicalVolume(bigChamber, bigChamberRun6Material, "bigChamber_logical");
+
+    G4VisAttributes* DetVisAtt =  new G4VisAttributes(G4Colour(0.9,0.9,.9));
+    DetVisAtt->SetForceWireframe(true);
+    DetVisAtt->SetForceSolid(true);
+    bigChamber_logical->SetVisAttributes(DetVisAtt);
+
+
+     G4ThreeVector loc = G4ThreeVector(0.0,0.0,0.0);
+     G4Transform3D transform(rot,loc);
+     new G4PVPlacement(transform,             //rotation,position
+                       bigChamber_logical,            //its logical volume
+                       "bigChamberGeom",             //its name
+                       worldLogical,      //its mother (logical) volume
+                       true,                 //no boolean operation
+                       0,                 //copy number
+                       checkOverlaps);       // checking overlaps 
+
+    G4Tubs* ringInner = new G4Tubs("ringInner",24*mm,31*mm,1.78*mm,0*degree,360*degree);
+
+
+    G4Box* conn = new G4Box("conn",44.5*mm,4.5*mm,1.125*mm);
+    G4LogicalVolume* conn_logical = new G4LogicalVolume(conn,bigChamberRun6Material,"conn_logical");
+    conn_logical->SetVisAttributes(DetVisAtt);
+
+    G4ThreeVector loc2;
+    G4Transform3D transform2;
+
+    loc2 = G4ThreeVector(75.*mm,0.0,0.0);
+    transform2 = G4Transform3D(rot,loc2);
+    G4UnionSolid*  unionSolid =  new G4UnionSolid("c1", ringInner,conn,transform2);
+
+    loc2 = G4ThreeVector(-53.*mm,53.*mm,0.0);
+    transform2 = G4Transform3D(rot.rotateZ(-45*degree),loc2);
+    unionSolid =  new G4UnionSolid("c2", unionSolid,conn,transform2);
+
+    loc2 = G4ThreeVector(-53.*mm,-53.*mm,0.0);
+    transform2 = G4Transform3D(rot.rotateZ(90*degree),loc2);
+    unionSolid =  new G4UnionSolid("c3", unionSolid,conn,transform2);
+
+    G4LogicalVolume* unionSolid_logical = new G4LogicalVolume(unionSolid,bigChamberRun6Material,"union_logical");
+    unionSolid_logical->SetVisAttributes(DetVisAtt);
+
+    new G4PVPlacement(transform,             //rotation,position
+                       unionSolid_logical,            //its logical volume
+                       "bigChamberInnerStructure",             //its name
+                       worldLogical,      //its mother (logical) volume
+                       true,                 //no boolean operation
+                       0,                 //copy number
+                       checkOverlaps);       // checking overlaps 
+
+
+
+
+// ----------------------------------------------------------------------------------
+
+    G4Tubs* xadFilling = new G4Tubs("xadFilling",12.*cm, 12.19*cm, 27.5*cm, 0*degree,360*degree);
+    G4LogicalVolume* xadFilling_logical = new G4LogicalVolume(xadFilling,XADMaterial,"xadFilling_logical");
+    G4VisAttributes* XADVisAtt =  new G4VisAttributes(G4Colour(0.2,0.3,.5));
+    XADVisAtt->SetForceWireframe(true);
+    XADVisAtt->SetForceSolid(true);
+
+    xadFilling_logical->SetVisAttributes(XADVisAtt);
+
+     new G4PVPlacement(transform,             //rotation,position
+                       xadFilling_logical,            //its logical volume
+                       "xadFillingGeom",             //its name
+                       worldLogical,      //its mother (logical) volume
+                       true,                 //no boolean operation
+                       0,                 //copy number
+                       checkOverlaps);       // checking overlaps 
+
+
+    // KAPTON foil   
+// ----------------------------------------------------------------------------------
+    G4Tubs* kaptonFilling = new G4Tubs("kaptonFilling",0.*cm, 23.99*mm, 0.1*cm, 0*degree,360*degree);
+    G4LogicalVolume* kaptonFilling_logical = new G4LogicalVolume(kaptonFilling,kapton,"kaptonFilling_logical");
+    G4VisAttributes* kaptonVisAtt =  new G4VisAttributes(G4Colour(0.2,0.3,.5));
+    kaptonVisAtt->SetForceWireframe(true);
+    kaptonVisAtt->SetForceSolid(true);
+
+    kaptonFilling_logical->SetVisAttributes(kaptonVisAtt);
+
+     new G4PVPlacement(transform,             //rotation,position
+                       kaptonFilling_logical,            //its logical volume
+                       "kaptonFillingGeom",             //its name
+                       worldLogical,      //its mother (logical) volume
+                       true,                 //no boolean operation
+                       0,                 //copy number
+                       checkOverlaps);       // checking overlaps 
+
+
+}
+
+
+
 
 
 void DetectorConstruction::ConstructTargetRun5()
@@ -163,7 +277,7 @@ void DetectorConstruction::ConstructTargetRun3()
    G4Polycone* bigChamber = new G4Polycone("bigChamber",0*degree,360*degree, 10 , z, rInner, rOuter);
         
 
-   G4LogicalVolume * bigChamber_logical = new G4LogicalVolume(bigChamber, bigChamberMaterial, "bigChamber_logical");
+   G4LogicalVolume * bigChamber_logical = new G4LogicalVolume(bigChamber, bigChamberRun3Material, "bigChamber_logical");
 
     G4VisAttributes* DetVisAtt =  new G4VisAttributes(G4Colour(0.9,0.9,.9));
     DetVisAtt->SetForceWireframe(true);
@@ -187,7 +301,7 @@ void DetectorConstruction::ConstructTargetRun3()
 
 
     G4Box* conn = new G4Box("conn",25*mm,7.*mm,0.8*mm);
-    G4LogicalVolume* conn_logical = new G4LogicalVolume(conn,bigChamberMaterial,"conn_logical");
+    G4LogicalVolume* conn_logical = new G4LogicalVolume(conn,bigChamberRun3Material,"conn_logical");
     conn_logical->SetVisAttributes(DetVisAtt);
 
 
@@ -215,7 +329,7 @@ void DetectorConstruction::ConstructTargetRun3()
     unionSolid =  new G4UnionSolid("c5", unionSolid,ringOuter);
 
 
-    G4LogicalVolume* unionSolid_logical = new G4LogicalVolume(unionSolid,bigChamberMaterial,"union_logical");
+    G4LogicalVolume* unionSolid_logical = new G4LogicalVolume(unionSolid,bigChamberRun3Material,"union_logical");
     unionSolid_logical->SetVisAttributes(DetVisAtt);
 
     new G4PVPlacement(transform,             //rotation,position
@@ -312,6 +426,7 @@ void DetectorConstruction::InitializeMaterials()
     // define material
     G4NistManager* nistManager = G4NistManager::Instance();
     nistManager->FindOrBuildMaterial("G4_AIR");   
+    nistManager->FindOrBuildMaterial("G4_PLEXIGLASS");   
     nistManager->FindOrBuildMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
     nistManager->FindOrBuildMaterial("G4_Al");
     nistManager->FindOrBuildMaterial("G4_KAPTON");
@@ -330,10 +445,17 @@ void DetectorConstruction::InitializeMaterials()
     kapton =  new MaterialExtension("kapton", G4Material::GetMaterial("G4_KAPTON")); 
 
 
-    bigChamberMaterial = new MaterialExtension("bigChamber", G4Material::GetMaterial("G4_Al"));
-    bigChamberMaterial->AllowsAnnihilations(true); 
-    bigChamberMaterial->Set3gProbability(foPsProbabilityAl); 
-    bigChamberMaterial->SetoPsLifetime(fTauoPsAl); 
+    bigChamberRun3Material = new MaterialExtension("bigChamberRun3", G4Material::GetMaterial("G4_Al"));
+    bigChamberRun3Material->AllowsAnnihilations(true); 
+    bigChamberRun3Material->Set3gProbability(foPsProbabilityAl); 
+    bigChamberRun3Material->SetoPsLifetime(fTauoPsAl); 
+
+    bigChamberRun6Material = new MaterialExtension("bigChamberRun6", G4Material::GetMaterial("G4_PLEXIGLASS"));
+    bigChamberRun6Material->AllowsAnnihilations(true); 
+    bigChamberRun6Material->Set3gProbability(foPsProbabilityAl); 
+    bigChamberRun6Material->SetoPsLifetime(fTauoPsAl); 
+
+
 
     smallChamberMaterial = new MaterialExtension("smallChamber", G4Material::GetMaterial("G4_Al"));
     smallChamberMaterial->AllowsAnnihilations(true); 

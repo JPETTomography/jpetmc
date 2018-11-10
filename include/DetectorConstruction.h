@@ -91,16 +91,15 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void ConstructScintillators();
     //// create target used in run3 - big chamber no XAD material inside
     void ConstructTargetRun3();
-    //// create target used in run5 - small chamber + XAD material inside
+    //// create target used in run5 - small chamber + XAD material inside in a sandwitch form
     void ConstructTargetRun5();
-
+    //// create target used in run6 - big chamber + XAD material inside tube
+    void ConstructTargetRun6();
 
     G4int fRunNumber; ///< corresponds to JPET measurements; run 0 = user setup 
 
-
     G4bool fLoadCADFrame; ///< load frame from cad file
-    G4bool fLoadWrapping;
-
+    G4bool fLoadWrapping; ///< load scintillator wrapping
 
 
     G4Box* worldSolid;
@@ -112,8 +111,10 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     MaterialExtension* scinMaterial;    
     MaterialExtension* detectorMaterial;
 
+    MaterialExtension* plexiglass;
     MaterialExtension* kapton;
-    MaterialExtension* bigChamberMaterial;
+    MaterialExtension* bigChamberRun3Material;
+    MaterialExtension* bigChamberRun6Material;
     MaterialExtension* smallChamberMaterial;
     MaterialExtension* XADMaterial;
 
