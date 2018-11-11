@@ -35,10 +35,13 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
         G4String GetSourceTypeInfo(){return fGenerateSourceType;}
 
+        void SetNemaPoint(G4int i){fNemaPoint = i;}
+        G4int GetNemaPoint(){return fNemaPoint;}
+
     private:
 
         G4String fGenerateSourceType;///< "run", "beam", "isotope" 
-        G4String fAllowedSourceTypes[3] = {"run", "beam", "isotope"};
+        G4String fAllowedSourceTypes[4] = {"run", "beam", "isotope", "nema"};
 
         PrimaryGeneratorActionMessenger* fMessenger; 
 
@@ -47,6 +50,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
 
         BeamParams* fBeam;
         SourceParams* fIsotope;
+        G4int fNemaPoint;
 
 };
 #endif

@@ -18,6 +18,7 @@
 #include "VtxInformation.h"
 #include "PrimaryParticleInformation.h"
 
+#include "DetectorConstruction.h"
 
 
 PrimaryGenerator::PrimaryGenerator()
@@ -121,7 +122,7 @@ void PrimaryGenerator::GenerateIsotope(SourceParams* sourceParams, G4Event* even
 
     if (sourceParams->GetShape() == "cylinder")
     {
-        vtxPosition =  VertexUniformInCylinder(sourceParams->GetShapeDim(0),sourceParams->GetShapeDim(1));
+        vtxPosition =  VertexUniformInCylinder(sourceParams->GetShapeDim(0),sourceParams->GetShapeDim(1))+sourceParams->GetShapeCenterPosition();
     }
 
     G4PrimaryVertex* vertex = new G4PrimaryVertex(vtxPosition,0);
@@ -156,6 +157,75 @@ void PrimaryGenerator::GenerateIsotope(SourceParams* sourceParams, G4Event* even
     info->SetLifetime(lifetime/ps);
     info->SetVtxPosition(vtxPosition.x(),vtxPosition.y(),vtxPosition.z());
     event->AddPrimaryVertex(vertex);
+
+}
+
+void PrimaryGenerator::GenerateNema(G4int nemaPoint, G4Event* event)
+{
+
+    /** NEMA positions - coordinate system centered in the middle of the detector
+     * for( z={0,3/4L}){
+     *  x = 1, 10, 20 cm
+     *  y =0 
+     *  }
+     *
+     *  20      3       6
+     *  10      2       5
+     *  1       1       4
+     *  z ------0------3/4L ------
+     */
+
+	G4double x_creation = 0.0; 
+	G4double z_creation = 0.0;
+
+	    if(nemaPoint>3){
+	        z_creation = z_creation + scinDim_z*3/8/cm;
+	    }
+	
+	    if(nemaPoint==1 || nemaPoint == 4){
+	        x_creation = x_creation + 1.0;
+	    }
+	
+	    if(nemaPoint==2 || nemaPoint == 5){
+	        x_creation = x_creation + 10.0;
+	    }
+	    if(nemaPoint==3 || nemaPoint == 6){
+	        x_creation = x_creation + 20.0;
+	    }
+
+
+
+    G4ThreeVector vtxPosition
+      =  VertexUniformInCylinder(0.1*mm,0.1*mm)+G4ThreeVector(x_creation,0.,z_creation);
+
+
+    G4PrimaryVertex* vertex = new G4PrimaryVertex(vtxPosition,0);
+    VtxInformation* info = new VtxInformation();
+    vertex->SetUserInformation(info);
+    vertex->SetPosition(vtxPosition.x()*cm,vtxPosition.y()*cm,vtxPosition.z()*cm);
+
+    G4double lifetime = G4RandExponential::shoot(fTauBulk);
+    GenerateTwoGammaVertex(vertex);
+    info->SetTwoGammaGen(true);
+    info->SetLifetime(lifetime/ps);
+    info->SetVtxPosition(vtxPosition.x(),vtxPosition.y(),vtxPosition.z());
+    event->AddPrimaryVertex(vertex);
+
+
+
+    // add sodium prompt gamma
+    G4double promptLifetime = G4RandExponential::shoot(3.7*ps);
+    G4PrimaryVertex* vertexPrompt = new G4PrimaryVertex(vtxPosition,promptLifetime) ;
+    VtxInformation* infoPrompt = new VtxInformation();
+    vertexPrompt->SetUserInformation(infoPrompt);
+    vertexPrompt->SetPosition(vtxPosition.x()*cm,vtxPosition.y()*cm,vtxPosition.z()*cm);
+
+
+    GeneratePromptGammaSodium(vertexPrompt);
+    infoPrompt->SetPromptGammaGen(true);
+    infoPrompt->SetLifetime(promptLifetime/ps);
+    infoPrompt->SetVtxPosition(vtxPosition.x(),vtxPosition.y(),vtxPosition.z());
+    event->AddPrimaryVertex(vertexPrompt);
 
 
 }

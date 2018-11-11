@@ -6,10 +6,10 @@ PrimaryGeneratorActionMessenger::PrimaryGeneratorActionMessenger(PrimaryGenerato
 {
 
     fDirectory = new G4UIdirectory("/jpetmc/source/"); 
-    fDirectory->SetGuidance("Commands for controling the gamma quanta source (beam/target) and its parameters");
+    fDirectory->SetGuidance("Commands for controling the gamma quanta source (beam/target/nema) and its parameters");
 
     fSourceType = new G4UIcmdWithAString("/jpetmc/source/setType",this);
-    fSourceType->SetCandidates("beam isotope");
+    fSourceType->SetCandidates("beam isotope nema");
     fSourceType->SetDefaultValue("beam"); 
 
     fGammaBeamSetEnergy = new G4UIcmdWithADoubleAndUnit("/jpetmc/source/gammaBeam/setEnergy",this);
@@ -33,11 +33,11 @@ PrimaryGeneratorActionMessenger::PrimaryGeneratorActionMessenger(PrimaryGenerato
     fGammaBeamSetMomentum->SetUnitCandidates("keV");
     fGammaBeamSetMomentum->SetParameterName("Xvalue","Yvalue","Zvalue",false);
 
-    fGammaBeamSetPolarization = new G4UIcmdWith3Vector("/jpetmc/source/gammaBeam/setPolarization",this);
-    fGammaBeamSetPolarization->SetGuidance("Set initial polarization of the gamma quanta beam");
-    fGammaBeamSetPolarization->SetDefaultValue(G4ThreeVector(0,0,0));
-    fGammaBeamSetPolarization->SetParameterName("Xvalue","Yvalue","Zvalue",false);
-
+//    fGammaBeamSetPolarization = new G4UIcmdWith3Vector("/jpetmc/source/gammaBeam/setPolarization",this);
+//    fGammaBeamSetPolarization->SetGuidance("Set initial polarization of the gamma quanta beam");
+//    fGammaBeamSetPolarization->SetDefaultValue(G4ThreeVector(0,0,0));
+//    fGammaBeamSetPolarization->SetParameterName("Xvalue","Yvalue","Zvalue",false);
+//
 
     fIsotopeSetShape = new G4UIcmdWithAString("/jpetmc/source/isotope/setShape",this);
     fIsotopeSetShape->SetCandidates("cylinder");
@@ -57,6 +57,15 @@ PrimaryGeneratorActionMessenger::PrimaryGeneratorActionMessenger(PrimaryGenerato
     fIsotopeSetShapeDimCylinderZ->SetDefaultUnit("cm");
     fIsotopeSetShapeDimCylinderZ->SetUnitCandidates("cm"); 
 
+    fIsotopeSetCenter = new G4UIcmdWith3Vector("/jpetmc/source/isotope/setPosition",this);
+    fIsotopeSetCenter->SetGuidance("Set position of the source");
+    fIsotopeSetCenter->SetDefaultValue(G4ThreeVector(0,0,0));
+    fIsotopeSetCenter->SetParameterName("Xvalue","Yvalue","Zvalue",false);
+
+    fNemaPosition = new G4UIcmdWithAnInteger("/jpetmc/source/nema",this);
+    fNemaPosition->SetGuidance("Give nema point number to simulate (1-6) ");
+    fNemaPosition->SetDefaultValue(1);
+
 
 }
 
@@ -70,7 +79,9 @@ PrimaryGeneratorActionMessenger::~PrimaryGeneratorActionMessenger()
     delete fGammaBeamSetEnergy;
     delete fGammaBeamSetPosition;
     delete fGammaBeamSetMomentum;
-    delete fGammaBeamSetPolarization;
+    //delete fGammaBeamSetPolarization;
+    delete fIsotopeSetCenter;
+    delete fNemaPosition;
 }
 
 
@@ -115,6 +126,21 @@ void PrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, G4String
         CheckIfIsotope();
         fPrimGen->GetIsotopeParams()->SetShapeDim(1,fIsotopeSetShapeDimCylinderRadius->GetNewDoubleRawValue(newValue));
     }
+
+    if(command==fIsotopeSetCenter){
+        CheckIfIsotope();
+        G4ThreeVector loc =  fIsotopeSetCenter->GetNew3VectorValue(newValue);
+        fPrimGen->GetIsotopeParams()->SetShapeCenterPosition(
+            loc.x(), loc.y(), loc.z()
+        );
+    }
+
+    if(command==fNemaPosition){
+        fPrimGen->SetSourceTypeInfo("nema");
+	fPrimGen->SetNemaPoint(fNemaPosition->GetNewIntValue(newValue));
+    }
+
+
 
 }
 

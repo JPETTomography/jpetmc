@@ -18,6 +18,7 @@ class PrimaryGenerator : public G4VPrimaryGenerator
         ~PrimaryGenerator();
         void GenerateBeam(BeamParams*, G4Event* );
         void GenerateIsotope(SourceParams*, G4Event* );
+        void GenerateNema(G4int, G4Event* );
         void GenerateEvtChamberWithSodiumAndPorousMaterial(G4Event* event, G4double maxXhalf, G4double maxYhalf, G4double maxZhalf); ///< as input the maximal dimension(/2) of annihilation chamber are passed (to speed up)
 
     public:
