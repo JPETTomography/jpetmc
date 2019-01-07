@@ -1,9 +1,6 @@
 #include "MaterialExtension.h"
 
 
-//MaterialExtension::MaterialExtension(G4Material* mat,const G4String& name):
-//    G4VMaterialExtension(name),
-//    fMaterial(mat)
 MaterialExtension::MaterialExtension(const G4String& name, const G4Material* baseMaterial)
 : G4Material(name,baseMaterial->GetDensity(),baseMaterial,    
    baseMaterial->GetState(),baseMaterial->GetTemperature(),
@@ -17,7 +14,7 @@ MaterialExtension::MaterialExtension(const G4String& name, const G4Material* bas
 
 
 MaterialExtension::~MaterialExtension()
-{;}
+{}
 
 
 G4double MaterialExtension::Get3gFraction()
@@ -30,7 +27,12 @@ G4double MaterialExtension::Get3gFraction()
     // 3g = direct + oPs
     f3gFraction = (1.-4/3*foPsPobability)/372 + (foPslifetime/fTauoPsVaccum)*foPsPobability; 
 
-    return f3gFraction;
+      if(fMaterialExtensionMessenger->GenerateOnly3g())
+      {
+            return 1.0;
+      } else {
+            return f3gFraction;
+      }
 }
 
 void MaterialExtension::Set3gProbability(G4double x)

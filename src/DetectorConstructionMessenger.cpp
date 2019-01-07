@@ -24,6 +24,7 @@ DetectorConstructionMessenger::DetectorConstructionMessenger(DetectorConstructio
   fLoadOnlyScintillators = new G4UIcmdWithoutParameter("/jpetmc/detector/loadOnlyScintillators",this);
   fLoadOnlyScintillators->SetGuidance("Generate only scintillators (for test purposes)");
 
+       
 }
 
 DetectorConstructionMessenger::~DetectorConstructionMessenger()
@@ -66,6 +67,5 @@ void DetectorConstructionMessenger::SetNewValue(G4UIcommand* command, G4String n
         fDetector->UpdateGeometry();
 
     }
-
 
 }

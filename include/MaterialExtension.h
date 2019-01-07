@@ -7,6 +7,7 @@
 #include "globals.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4UnitsTable.hh"
+#include "MaterialExtensionMessenger.h"
 
 /**
  * \class MaterialExtension
@@ -22,7 +23,6 @@ const G4double foPsProbabilityAl = 0.12;
 const G4double fTauoPsXAD = 2.45*ns;
 const G4double foPsProbabilityXAD = 89.6; // 4/3 I; taken only most intense component
 
-//class MaterialExtension : public G4VMaterialExtension
 class MaterialExtension : public G4Material
 {
     public:
@@ -46,6 +46,7 @@ class MaterialExtension : public G4Material
 
     private:
       G4Material* fMaterial;
+      MaterialExtensionMessenger* fMaterialExtensionMessenger =  MaterialExtensionMessenger::GetMaterialExtensionMessenger();
       G4bool fTarget;
 
       G4double f3gFraction; ///<  3g/2g events fraction 

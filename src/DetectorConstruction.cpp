@@ -471,7 +471,6 @@ void DetectorConstruction::InitializeMaterials()
 
 }
 
-
 void DetectorConstruction::ConstructFrameCAD()
 {
 

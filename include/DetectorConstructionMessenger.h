@@ -12,6 +12,7 @@
 #include "G4SystemOfUnits.hh"
 #include "G4UIcmdWithABool.hh"
 #include "G4UIcmdWithAnInteger.hh" 
+#include "G4UIcmdWithABool.hh"
 
 
 class DetectorConstructionMessenger: public G4UImessenger 
