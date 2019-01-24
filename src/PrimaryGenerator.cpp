@@ -365,20 +365,33 @@ void PrimaryGenerator::GenerateTwoGammaVertex(G4PrimaryVertex* vertex )
 
     //printf(" ======================================= \n");
     event.Generate();   
+    G4PrimaryParticle* particle[2];
+
     for (int i=0; i<2; i++)
     {
         TLorentzVector * out = event.GetDecay(i);
 
-        G4PrimaryParticle* particle1 = new G4PrimaryParticle(particleDefinition,
+        particle[i] = new G4PrimaryParticle(particleDefinition,
                 out->Px()*keV,out->Py()*keV,out->Pz()*keV,out->E()*keV);
-        //printf("gamma %i %4.2f %4.2f %4.2f %4.2f \n",i,out->Px()*keV,out->Py()*keV,out->Pz()*keV,out->E()*keV);
+
 
         PrimaryParticleInformation* info = new PrimaryParticleInformation();
         info->SetGammaMultiplicity(2);
         info->SetIndex(i+1);
-        particle1->SetUserInformation(info);
-        vertex->SetPrimary(particle1);
+        particle[i]->SetUserInformation(info);
+        vertex->SetPrimary(particle[i]);
     }
+
+      // code from Nikodem
+      G4ThreeVector gammaMom = particle[0]->GetMomentum();
+      G4ThreeVector polarization1 = gammaMom.orthogonal().unit();
+      polarization1 = polarization1.rotate( twopi * G4UniformRand() , gammaMom);
+      particle[1]->SetPolarization( polarization1 );
+
+      G4ThreeVector polarization2 = polarization1;
+
+      polarization2 = polarization2.rotate( twopi/4.0, gammaMom);
+      particle[0]->SetPolarization( polarization2 );
 
 }
 
