@@ -40,7 +40,7 @@ class HistoManager
         void SetEventNumber(int x){fEventPack->SetEventNumber(x);};
 
         void SetHistogramCreation(bool tf){fMakeControlHisto=tf;};
-        bool IsHistoCreated(){return fMakeControlHisto;};
+        bool MakeControlHisto(){return fMakeControlHisto;};
 
 
     private:

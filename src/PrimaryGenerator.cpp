@@ -363,7 +363,6 @@ void PrimaryGenerator::GenerateTwoGammaVertex(G4PrimaryVertex* vertex )
     }
 
 
-    //printf(" ======================================= \n");
     event.Generate();   
     G4PrimaryParticle* particle[2];
 
@@ -390,7 +389,7 @@ void PrimaryGenerator::GenerateTwoGammaVertex(G4PrimaryVertex* vertex )
 
       G4ThreeVector polarization2 = polarization1;
 
-      polarization2 = polarization2.rotate( twopi/4.0, gammaMom);
+      polarization2 = polarization2.rotate( pi/2.0, gammaMom);
       particle[0]->SetPolarization( polarization2 );
 
 }

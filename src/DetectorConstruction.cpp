@@ -106,16 +106,50 @@ void DetectorConstruction::LoadGeometryForRun(G4int nr)
 
 void DetectorConstruction::ConstructTargetRun6()
 {
+
+    ///  Parameters taken from http://koza.if.uj.edu.pl/petwiki/images/7/71/AnnihilationChamberRun6.pdf
+    ///  below are stored main values. Please note that chamber is symmetric in z, therefore 
+    ///  only half of the table is presented below.
+    /// 
+    ///    z       |  r Inner     | r Outer     | Comment
+    ///   ---------|--------------|-------------|-------   
+    ///    -31.0*cm|    0*cm      | 12.7*cm     |  chamber end
+    ///    -29.0*cm|    0*cm      | 12.7*cm     |  start slope before endcup     
+    ///    -28.9*cm|    0*cm      | 15*cm       |  stop slope before endcup 
+    ///     -28*cm |   0*cm       | 15*cm       |  endcup
+    ///   -27.9*cm |   12.2*cm    | 12.5*cm     |  end slope after endcup and start empty inside
+    ///
+
+   const double chamber_radius_inner = 12.2*cm;
+   const double chamber_radius_outer = 12.5*cm;
+   const double chamber_endcup_min = 12.7*cm; 
+   const double chamber_endcup_max = 15.0*cm;
+
+   const double xad_z_coverage = 27.5*cm; 
+   const double xad_halfthickness = 0.2*cm;
+
+   const double source_holder_connector_halfthickness = 1.125*mm;
+   const double source_holder_connector_width = 4.5*mm;
+   const double source_holder_connector_height = 44.5*mm;
+
+   const double source_holder_radius_inner = 24*mm;
+   const double source_holder_radius_outer = 31*mm;
+   const double source_holder_radius_halfthickness = 1.78*mm; 
+
+   const double kapton_foil_halfthickness = 0.1*cm; 
+
+
    G4RotationMatrix rot = G4RotationMatrix();
 
    G4double z[] =      {-31.0*cm, -29.0*cm, -28.9*cm, -28*cm, -27.9*cm, 27.9*cm, 28*cm, 28.9*cm, 29*cm,  31*cm }; 
-   G4double rInner[] = { 0*cm,    0*cm,     0*cm,      0*cm,   12.2*cm, 12.2*cm, 0*cm,  0*cm,    0*cm,   0*cm };
-   G4double rOuter[] = { 12.7*cm, 12.7*cm,  15*cm,    15*cm,   12.5*cm, 12.5*cm, 15*cm, 15*cm,   12.7*cm, 12.7*cm }; 
+   G4double rInner[] = { 0*cm,    0*cm,     0*cm,      0*cm,   chamber_radius_inner, chamber_radius_inner, 0*cm,  0*cm,    0*cm,   0*cm };
+   G4double rOuter[] = { chamber_endcup_min, chamber_endcup_min, chamber_endcup_max, chamber_endcup_max ,  
+       chamber_radius_outer, chamber_radius_outer, chamber_endcup_max, chamber_endcup_max,   chamber_endcup_min, chamber_endcup_min }; 
 
    G4Polycone* bigChamber = new G4Polycone("bigChamber",0*degree,360*degree, 10 , z, rInner, rOuter);
         
 
-   G4LogicalVolume * bigChamber_logical = new G4LogicalVolume(bigChamber, bigChamberRun6Material, "bigChamber_logical");
+   G4LogicalVolume * bigChamber_logical = new G4LogicalVolume(bigChamber, plexiglassMaterial, "bigChamber_logical");
 
     G4VisAttributes* DetVisAtt =  new G4VisAttributes(G4Colour(0.9,0.9,.9));
     DetVisAtt->SetForceWireframe(true);
@@ -133,11 +167,11 @@ void DetectorConstruction::ConstructTargetRun6()
                        0,                 //copy number
                        checkOverlaps);       // checking overlaps 
 
-    G4Tubs* ringInner = new G4Tubs("ringInner",24*mm,31*mm,1.78*mm,0*degree,360*degree);
 
+    G4Tubs* ringInner = new G4Tubs("ringInner",source_holder_radius_inner,source_holder_radius_outer,source_holder_radius_halfthickness,0*degree,360*degree);
 
-    G4Box* conn = new G4Box("conn",44.5*mm,4.5*mm,1.125*mm);
-    G4LogicalVolume* conn_logical = new G4LogicalVolume(conn,bigChamberRun6Material,"conn_logical");
+    G4Box* conn = new G4Box("conn",source_holder_connector_height,source_holder_connector_width,source_holder_connector_halfthickness);
+    G4LogicalVolume* conn_logical = new G4LogicalVolume(conn,plexiglassMaterial,"conn_logical");
     conn_logical->SetVisAttributes(DetVisAtt);
 
     G4ThreeVector loc2;
@@ -155,7 +189,7 @@ void DetectorConstruction::ConstructTargetRun6()
     transform2 = G4Transform3D(rot.rotateZ(90*degree),loc2);
     unionSolid =  new G4UnionSolid("c3", unionSolid,conn,transform2);
 
-    G4LogicalVolume* unionSolid_logical = new G4LogicalVolume(unionSolid,bigChamberRun6Material,"union_logical");
+    G4LogicalVolume* unionSolid_logical = new G4LogicalVolume(unionSolid,plexiglassMaterial,"union_logical");
     unionSolid_logical->SetVisAttributes(DetVisAtt);
 
     new G4PVPlacement(transform,             //rotation,position
@@ -171,7 +205,7 @@ void DetectorConstruction::ConstructTargetRun6()
 
 // ----------------------------------------------------------------------------------
 
-    G4Tubs* xadFilling = new G4Tubs("xadFilling",12.*cm, 12.19*cm, 27.5*cm, 0*degree,360*degree);
+    G4Tubs* xadFilling = new G4Tubs("xadFilling",chamber_radius_inner-0.1*cm-xad_halfthickness, chamber_radius_inner-0.1*cm, xad_z_coverage, 0*degree,360*degree);
     G4LogicalVolume* xadFilling_logical = new G4LogicalVolume(xadFilling,XADMaterial,"xadFilling_logical");
     G4VisAttributes* XADVisAtt =  new G4VisAttributes(G4Colour(0.2,0.3,.5));
     XADVisAtt->SetForceWireframe(true);
@@ -188,9 +222,10 @@ void DetectorConstruction::ConstructTargetRun6()
                        checkOverlaps);       // checking overlaps 
 
 
+
     // KAPTON foil   
 // ----------------------------------------------------------------------------------
-    G4Tubs* kaptonFilling = new G4Tubs("kaptonFilling",0.*cm, 23.99*mm, 0.1*cm, 0*degree,360*degree);
+    G4Tubs* kaptonFilling = new G4Tubs("kaptonFilling",0.*cm, source_holder_radius_inner-0.01*mm , kapton_foil_halfthickness, 0*degree,360*degree);
     G4LogicalVolume* kaptonFilling_logical = new G4LogicalVolume(kaptonFilling,kapton,"kaptonFilling_logical");
     G4VisAttributes* kaptonVisAtt =  new G4VisAttributes(G4Colour(0.2,0.3,.5));
     kaptonVisAtt->SetForceWireframe(true);
@@ -215,11 +250,41 @@ void DetectorConstruction::ConstructTargetRun6()
 
 void DetectorConstruction::ConstructTargetRun5()
 {
+
+    ///  Parameters taken from http://koza.if.uj.edu.pl/petwiki/index.php/Small_annihilation_chamber 
+    ///  below are stored main values. Please note that chamber is symmetric in z, therefore 
+    ///  only half of the table is presented below.
+    ///  Chamber has four different outer radius 
+    /// 
+    ///    z       |  r Inner     | r Outer    | Comment
+    ///   ---------|--------------|------------|-------   
+    ///   -7.6*cm  |    0*cm      | 2.5*cm     | chamber end  
+    ///   -7.0*cm  |    0*cm      | 2.5*cm     | start slope (R1->R2)
+    ///   -6.9*cm  |    1.5*cm    | 2.0*cm     | end slope and start empty space
+    ///   -4.3*cm  |    1.5*cm    | 2.0*cm     | start slope (R2->R3)
+    ///    -4.2*cm |    1.5*cm    | 1.8*cm     | end slope
+    ///    -2.7*cm |    1.5*cm    | 1.8*cm     | start slope (R3->R4)
+    ///    -2.6*cm |    1.5*cm    | 1.57*cm    | end slope 
+    ///
+
+   const double chamber_radius_inner = 1.5*cm;
+   const double chamber_radius_outer_1 = 2.5*cm;
+   const double chamber_radius_outer_2 = 2.0*cm;
+   const double chamber_radius_outer_3 = 1.8*cm;
+   const double chamber_radius_outer_4 = 1.57*cm;
+
+   const double xadFilling_halfthickness =  0.6*cm;
+
+
    G4RotationMatrix rot = G4RotationMatrix();
 
    G4double z[] = {-7.6*cm, -7.0*cm, -6.9*cm, -4.3*cm, -4.2*cm, -2.7*cm, -2.6*cm, 2.6*cm, 2.7*cm, 4.2*cm, 4.3*cm, 6.9*cm, 7.0*cm, 7.6*cm }; 
-   G4double rInner[] = { 0*cm, 0*cm, 1.5*cm, 1.5*cm, 1.5*cm, 1.5*cm , 1.5*cm,  1.5*cm, 1.5*cm, 1.5*cm, 1.5*cm , 1.5*cm,  0*cm, 0*cm};
-   G4double rOuter[] = { 2.5*cm, 2.5*cm, 2.0*cm, 2.0*cm, 1.8*cm, 1.8*cm, 1.57*cm, 1.57*cm, 1.8*cm, 1.8*cm, 2.0*cm, 2.0*cm, 2.5*cm, 2.5*cm }; 
+   G4double rInner[] = { 0*cm, 0*cm, chamber_radius_inner, chamber_radius_inner, chamber_radius_inner, chamber_radius_inner,
+       chamber_radius_inner, chamber_radius_inner, chamber_radius_inner, chamber_radius_inner, chamber_radius_inner, chamber_radius_inner,  0*cm, 0*cm}; 
+   G4double rOuter[] = {chamber_radius_outer_1, chamber_radius_outer_1, chamber_radius_outer_2, chamber_radius_outer_2, 
+       chamber_radius_outer_3,chamber_radius_outer_3, chamber_radius_outer_4, chamber_radius_outer_4,
+       chamber_radius_outer_3, chamber_radius_outer_3, chamber_radius_outer_2, chamber_radius_outer_2,
+       chamber_radius_outer_1, chamber_radius_outer_1};
 
    G4Polycone* smallChamber = new G4Polycone("bigChamber",0*degree,360*degree, 14 , z, rInner, rOuter);
         
@@ -243,7 +308,9 @@ void DetectorConstruction::ConstructTargetRun5()
                        checkOverlaps);       // checking overlaps 
 
 
-    G4Tubs* xadFilling = new G4Tubs("xadFilling",0*cm, 1.49*cm, 0.6*cm, 0*degree,360*degree);
+
+
+    G4Tubs* xadFilling = new G4Tubs("xadFilling",0*cm,  chamber_radius_inner-0.01*cm, xadFilling_halfthickness, 0*degree,360*degree);
     G4LogicalVolume* xadFilling_logical = new G4LogicalVolume(xadFilling,XADMaterial,"xadFilling_logical");
     G4VisAttributes* XADVisAtt =  new G4VisAttributes(G4Colour(0.2,0.3,.5));
     XADVisAtt->SetForceWireframe(true);
@@ -264,20 +331,36 @@ void DetectorConstruction::ConstructTargetRun5()
 
 void DetectorConstruction::ConstructTargetRun3()
 {
+    ///  Please note that chamber is symmetric in z, therefore 
+    ///  only half of the table is presented below.
+    ///  Chamber has four different outer radius 
+    /// 
+    ///    z         |  r Inner     | r Outer    | Comment
+    ///   -----------|--------------|------------|-------   
+    ///   -37.00*cm  |    0*cm      | 3*cm       | chamber end  
+    ///   -32.61*cm  |    0*cm      | 3*cm       | start endcup 
+    ///   -32.60*cm  |    0*cm      | 10*cm      | end slope 
+    ///   -31.10*cm  |    0*cm      | 10*cm      | start slope 
+    ///   -31.00*cm  |    7.1*cm    | 7.5*cm     | end slope and start empty volume
+    ///
+
+   const double chamber_radius_inner = 7.1*cm;
+   const double chamber_radius_outer = 7.5*cm;
+   const double chamber_endcup_min = 3.0*cm; 
+   const double chamber_endcup_max = 10.0*cm;
+
+
    G4RotationMatrix rot = G4RotationMatrix();
 
    G4double z[] = {-37*cm, -32.61*cm,-32.6*cm, -31.1*cm, -31*cm, 31*cm, 31.1*cm, 32.6*cm, 32.61*cm, 37*cm}; 
-   G4double rInner[] = { 0*cm, 0*cm, 0*cm, 0*cm, 7.1*cm, 7.1*cm, 0*cm, 0*cm, 0*cm, 0*cm};
-   G4double rOuter[] = { 3*cm, 3*cm, 10*cm, 10*cm, 7.5*cm, 7.5*cm, 10*cm, 10*cm, 3*cm, 3*cm}; 
-
-   // wartości bazujące na wykresach technicznych - nie odpowiadają rzeczywistości 
-   //G4double rInner[] = { 0*cm, 0*cm, 0*cm, 0*cm, 9.1*cm, 9.1*cm, 0*cm, 0*cm, 0*cm, 0*cm};
-   //G4double rOuter[] = { 3*cm, 3*cm, 12*cm, 12*cm, 9.5*cm, 9.5*cm, 12*cm, 12*cm, 3*cm, 3*cm}; 
+   G4double rInner[] = { 0*cm, 0*cm, 0*cm, 0*cm, chamber_radius_inner, chamber_radius_inner, 0*cm, 0*cm, 0*cm, 0*cm};
+   G4double rOuter[] = { chamber_endcup_min, chamber_endcup_min, chamber_endcup_max, chamber_endcup_max,
+       chamber_radius_outer, chamber_radius_outer, chamber_endcup_max, chamber_endcup_max, chamber_endcup_min,chamber_endcup_min};
 
    G4Polycone* bigChamber = new G4Polycone("bigChamber",0*degree,360*degree, 10 , z, rInner, rOuter);
         
 
-   G4LogicalVolume * bigChamber_logical = new G4LogicalVolume(bigChamber, bigChamberRun3Material, "bigChamber_logical");
+   G4LogicalVolume * bigChamber_logical = new G4LogicalVolume(bigChamber, aluminiumMaterial, "bigChamber_logical");
 
     G4VisAttributes* DetVisAtt =  new G4VisAttributes(G4Colour(0.9,0.9,.9));
     DetVisAtt->SetForceWireframe(true);
@@ -301,7 +384,7 @@ void DetectorConstruction::ConstructTargetRun3()
 
 
     G4Box* conn = new G4Box("conn",25*mm,7.*mm,0.8*mm);
-    G4LogicalVolume* conn_logical = new G4LogicalVolume(conn,bigChamberRun3Material,"conn_logical");
+    G4LogicalVolume* conn_logical = new G4LogicalVolume(conn,aluminiumMaterial,"conn_logical");
     conn_logical->SetVisAttributes(DetVisAtt);
 
 
@@ -324,12 +407,11 @@ void DetectorConstruction::ConstructTargetRun3()
     transform2 = G4Transform3D(rot,loc2);
     unionSolid =  new G4UnionSolid("c4", unionSolid,conn,transform2);
 
-    //G4Tubs* ringOuter = new G4Tubs("ringOuter",80*mm,95*mm,0.8*mm,0*degree,360*degree);
     G4Tubs* ringOuter = new G4Tubs("ringOuter",60*mm,70*mm,0.8*mm,0*degree,360*degree);
     unionSolid =  new G4UnionSolid("c5", unionSolid,ringOuter);
 
 
-    G4LogicalVolume* unionSolid_logical = new G4LogicalVolume(unionSolid,bigChamberRun3Material,"union_logical");
+    G4LogicalVolume* unionSolid_logical = new G4LogicalVolume(unionSolid,aluminiumMaterial,"union_logical");
     unionSolid_logical->SetVisAttributes(DetVisAtt);
 
     new G4PVPlacement(transform,             //rotation,position
@@ -433,11 +515,6 @@ void DetectorConstruction::InitializeMaterials()
     nistManager->FindOrBuildMaterial("G4_Galactic");
     nistManager->FindOrBuildMaterial("G4_POLYSTYRENE");
 
-    //air = G4Material::GetMaterial("G4_AIR"); 
-    //scinMaterial      =G4Material::GetMaterial("G4_PLASTIC_SC_VINYLTOLUENE");
-    //detectorMaterial  =G4Material::GetMaterial("G4_Al");
-    //kapton  =G4Material::GetMaterial("G4_KAPTON");
-
     air =  new MaterialExtension("air",G4Material::GetMaterial("G4_AIR")); 
     vacuum =  new MaterialExtension("vacuum", G4Material::GetMaterial("G4_Galactic")); 
     scinMaterial      = new MaterialExtension("scinMaterial", G4Material::GetMaterial("G4_PLASTIC_SC_VINYLTOLUENE"));
@@ -445,16 +522,15 @@ void DetectorConstruction::InitializeMaterials()
     kapton =  new MaterialExtension("kapton", G4Material::GetMaterial("G4_KAPTON")); 
 
 
-    bigChamberRun3Material = new MaterialExtension("bigChamberRun3", G4Material::GetMaterial("G4_Al"));
-    bigChamberRun3Material->AllowsAnnihilations(true); 
-    bigChamberRun3Material->Set3gProbability(foPsProbabilityAl); 
-    bigChamberRun3Material->SetoPsLifetime(fTauoPsAl); 
+    aluminiumMaterial = new MaterialExtension("bigChamberRun3", G4Material::GetMaterial("G4_Al"));
+    aluminiumMaterial->AllowsAnnihilations(true); 
+    aluminiumMaterial->Set3gProbability(foPsProbabilityAl); 
+    aluminiumMaterial->SetoPsLifetime(fTauoPsAl); 
 
-    bigChamberRun6Material = new MaterialExtension("bigChamberRun6", G4Material::GetMaterial("G4_PLEXIGLASS"));
-    bigChamberRun6Material->AllowsAnnihilations(true); 
-    bigChamberRun6Material->Set3gProbability(foPsProbabilityAl); 
-    bigChamberRun6Material->SetoPsLifetime(fTauoPsAl); 
-
+    plexiglassMaterial = new MaterialExtension("bigChamberRun6", G4Material::GetMaterial("G4_PLEXIGLASS"));
+    plexiglassMaterial->AllowsAnnihilations(true); 
+    plexiglassMaterial->Set3gProbability(foPsProbabilityAl); 
+    plexiglassMaterial->SetoPsLifetime(fTauoPsAl); 
 
 
     smallChamberMaterial = new MaterialExtension("smallChamber", G4Material::GetMaterial("G4_Al"));

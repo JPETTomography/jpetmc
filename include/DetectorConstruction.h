@@ -113,8 +113,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
     MaterialExtension* plexiglass;
     MaterialExtension* kapton;
-    MaterialExtension* bigChamberRun3Material;
-    MaterialExtension* bigChamberRun6Material;
+    MaterialExtension* aluminiumMaterial;
+    MaterialExtension* plexiglassMaterial;
     MaterialExtension* smallChamberMaterial;
     MaterialExtension* XADMaterial;
 

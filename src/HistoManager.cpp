@@ -36,7 +36,7 @@ void HistoManager::Book()
     fTree->SetAutoSave(1000000000); // autosave when 1 Gbyte written
     fBranchEventPack = fTree->Branch("eventPack", &fEventPack, bufsize, splitlevel);
 
-      if ( IsHistoCreated()){
+      if ( MakeControlHisto()){
             BookHistograms(); 
       }
 }
@@ -89,7 +89,7 @@ void HistoManager::AddGenInfo(VtxInformation* info)
         fGeantInfo->SetLifetime(info->GetLifetime());
         fGeantInfo->SetRunNr(info->GetRunNr());
 
-            if ( IsHistoCreated()){
+            if ( MakeControlHisto()){
                   if(is2g) fHisto[0]->Fill(2);
                   if(is3g) fHisto[0]->Fill(3);
             
@@ -109,7 +109,7 @@ void HistoManager::AddGenInfo(VtxInformation* info)
         fGeantInfo->SetVtxPromptPosition(info->GetVtxPositionX(),info->GetVtxPositionY(),info->GetVtxPositionZ());
         fGeantInfo->SetRunNr(info->GetRunNr());
 
-            if ( IsHistoCreated()){
+            if ( MakeControlHisto()){
                   fHisto[0]->Fill(1);
                   fHisto[5]->Fill(info->GetLifetime());
                   fHisto2D[4]->Fill(info->GetVtxPositionX(),info->GetVtxPositionY());
@@ -167,7 +167,7 @@ void HistoManager::AddNewHit(DetectorHit* hit)
     geantHit->SetGenGammaIndex(hit->GetGenGammaIndex());
 
 
-      if ( IsHistoCreated()){
+      if ( MakeControlHisto()){
             fHisto[1]->Fill(hit->GetTime()/ps);
             fHisto[2]->Fill(hit->GetEdep()/keV);
             fHisto[3]->Fill(hit->GetPosition().getZ()/cm);
@@ -186,7 +186,7 @@ void HistoManager::Save()
      //fRootFile->Write(); 
      fTree->Write();
 
-      if ( IsHistoCreated()){
+      if ( MakeControlHisto()){
             for(int i=0; i<MaxHisto; i++) fHisto[i]->Write();
             for(int i=0; i<MaxHisto2D; i++) fHisto2D[i]->Write();
       }
