@@ -27,7 +27,7 @@ DetectorConstruction* DetectorConstruction::GetInstance()
 
 
 DetectorConstruction::DetectorConstruction()
-:  G4VUserDetectorConstruction(), fRunNumber(0),  fLoadCADFrame(false), fLoadWrapping(true)
+:  G4VUserDetectorConstruction(), fRunNumber(0),  fLoadCADFrame(false), fLoadWrapping(true), fLoadModularLayer(true)
 {
 
     InitializeMaterials();
@@ -64,6 +64,10 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
      
     // scintillators for standard setup; right now always loaded
      ConstructScintillators();
+
+     if(fLoadModularLayer){
+      ConstructScintillatorsModularLayer();
+     }
 
      if(fLoadCADFrame)
      {
@@ -307,6 +311,47 @@ void DetectorConstruction::ConstructScintillators()
     }
 }
 
+void DetectorConstruction::ConstructScintillatorsModularLayer()
+{
+
+  //4th Layer : S. Sharma 20.06.2018
+  G4Box* scinBoxInModule = new G4Box("scinBoxInModule", scinDim_x_inModule/2.0, scinDim_y_inModule/2.0, scinDim_z/2.0);
+  scinLogInModule = new G4LogicalVolume(scinBoxInModule, scinMaterial, "scinBoxInModule");
+  G4VisAttributes* BoxVisAttI = new G4VisAttributes(G4Colour(0.105, 0.210, 0.210, 0.9));
+  BoxVisAttI->SetForceWireframe(true);
+  BoxVisAttI->SetForceSolid(true);
+  scinLogInModule->SetVisAttributes(BoxVisAttI);
+
+  // 13 straight scintillators in single module
+  // radius of each scintillator in tabular form
+  // taken from equation: radius0/cos(j*displacement) where
+  // j -> number of scintillator 
+  // radius0 = 38.186*cm
+  // displacement -> Angular displacement (1.04 degree / 0.01815 radius - fixed; value provided by Sushil)
+  const G4double radius_inner[13] = {38.416, 38.346, 38.289, 38.244, 38.212, 38.192,
+    38.186, 38.192, 38.212, 38.244, 38.289, 38.346, 38.416};
+  G4double phi1 = 0.0;
+  G4int icopyI = 193; // sum of already constructed scintillators; 
+  //for Framework newly inserted scintillators need to have a unique numbering 
+
+  for(int i=0; i<modulesInModularLayer; i++) {
+    G4double phi = (i*2*M_PI/modulesInModularLayer);
+    // 13 centered modules
+    for(int j=-6; j<7; j++) {
+      // 0.01815 - Angular displacement of 1.04 degree
+      phi1 = phi + j*0.01815;
+      G4double radius1 = radius_inner[j+6]*cm;
+      G4RotationMatrix rot = G4RotationMatrix();
+      rot.rotateZ(phi);
+      G4ThreeVector loc = G4ThreeVector(radius1*cos(phi1), radius1*sin(phi1), 0.0);
+      G4Transform3D transform(rot, loc);
+      G4String nameNewI = "scin_"+G4UIcommand::ConvertToString(icopyI+i*13+j+6);
+      new G4PVPlacement(transform, scinLogInModule, nameNewI, worldLogical, true, icopyI+i*13+j+6, checkOverlaps);
+      }
+      }
+ 
+}
+
 void DetectorConstruction::InitializeMaterials()
 {
     // define material
@@ -384,12 +429,17 @@ void DetectorConstruction::ConstructFrameCAD()
 
 }
 
+G4int DetectorConstruction::ReturnNumberOfScintillators()
+{
+      return 193;
+}
+
 void DetectorConstruction::ConstructSDandField()
 {
-        if(!detectorSD.Get()){
+      if(!detectorSD.Get()){
         DetectorSD* det = new DetectorSD("/mydet/detector");
         detectorSD.Put(det);
-        }
+      }
         G4SDManager::GetSDMpointer()->AddNewDetector(detectorSD.Get());
         SetSensitiveDetector(scinLog,detectorSD.Get());
 

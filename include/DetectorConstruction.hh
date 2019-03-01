@@ -34,24 +34,33 @@ class DetectorConstructionMessenger;
 const G4double world_hx = 1.0*m; ///< max world size
 const G4double world_hy = 1.0*m; ///< max world size
 const G4double world_hz = 1.0*m; ///< max world size
+
+// parameters for J-PET 
 const G4int layers = 3; ///< number of simulated laters in detector
 const G4double scinDim_x = 1.9*cm; ///<  X dimension of simulated strip
 const G4double scinDim_y = 0.7*cm; ///<  Y dimension of simulated strip
 const G4double scinDim_z = 50.0*cm; ///<  Z dimension of simulated strip
+const G4double radius[layers] = {42.5*cm,46.75*cm,57.5*cm}; ///< layer radius up to center of the strip
+const int nSegments[layers] = {48,48,96}; ///< number of segments in each layer
+
+const int extraLayers = 2;
+const int nSegmentsExtraLayers[2] = {96,96};
+const G4double radiusExtraLayers[2] = {509*mm, 533*mm};
 
 const G4double wrappingThickness = 2*25.4*pow(10,-6)*m; ///<  total width of used wrapping 
 const G4double wrappingShift = 1*pow(10,-5)*m; ///<  free space between wrapping and scinitlator 
 
 
+// parameters for modular layer (known as 4th layer)
+const G4double scinDim_x_inModule = 2.5*cm; ///<  X dimension of simulated strip
+const G4double scinDim_y_inModule = 0.6*cm; ///<  Y dimension of simulated strip
 
-const G4double radius[layers] = {42.5*cm,46.75*cm,57.5*cm}; ///< layer radius up to center of the strip
-const int nSegments[layers] = {48,48,96}; ///< number of segments in each layer
-//const int nSegments[layers] = {2,2,2}; ///< number of segments in each layer
+const int modulesInModularLayer = 24;
+
+
+// debugging parameters
 const  G4bool checkOverlaps = false; ///< debugging purpose 
 
-const int extraLayers = 2;
-const int nSegmentsExtraLayers[2] = {96,96};
-const G4double radiusExtraLayers[2] = {509*mm, 533*mm};
 
 /**
 * \class DetectorConstruction
@@ -66,6 +75,11 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
     void LoadFrame(G4bool tf){fLoadCADFrame=tf;};  
     void LoadGeometryForRun(G4int nr);
+    /// Modular layer (known as 4th layer); 24 modules filled with scintillators
+    void ConstructModularLayer(bool tf){fLoadModularLayer=tf;}
+    G4int ReturnNumberOfScintillators();
+
+
 
     G4int GetRunNumber(){return fRunNumber;};
 
@@ -89,17 +103,19 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void ConstructFrameCAD();
     //// create only scintillators; dimensions are right now fixed in code
     void ConstructScintillators();
+    //// construct modular layer inserted into detector (refered as 4th layer) 
+    void ConstructScintillatorsModularLayer();
     //// create target used in run3 - big chamber no XAD material inside
     void ConstructTargetRun3();
     //// create target used in run5 - small chamber + XAD material inside
     void ConstructTargetRun5();
-
 
     G4int fRunNumber; ///< corresponds to JPET measurements; run 0 = user setup 
 
 
     G4bool fLoadCADFrame; ///< load frame from cad file
     G4bool fLoadWrapping;
+    G4bool fLoadModularLayer;
 
 
 
@@ -118,6 +134,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     MaterialExtension* XADMaterial;
 
     G4LogicalVolume * scinLog;
+    G4LogicalVolume * scinLogInModule;
     G4Cache<DetectorSD*>  detectorSD;
 
 
