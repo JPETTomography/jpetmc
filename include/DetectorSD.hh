@@ -7,23 +7,18 @@
 class DetectorSD : public G4VSensitiveDetector
 {
     public:
-        DetectorSD(G4String name);
+        DetectorSD(G4String name, G4int scinSum);
         virtual ~DetectorSD();
 
         virtual void Initialize(G4HCofThisEvent* HCE);
 
     private:
         const G4double timeIntervals = 0.08; // 80 ps
-        const G4int totScinNum = 505; 
-        G4int previousHitHistory[505];
-        G4double previousHitTimeHistory[505];
-        //const G4int totScinNum = 7; 
-        //G4int previousHitHistory[7];
-        //G4double previousHitTimeHistory[7];
+        G4int totScinNum; 
+        std::vector<G4int> previousHitHistory;
+        std::vector<G4double> previousHitTimeHistory;
 
         DetectorHitsCollection *fDetectorCollection;
-        //G4int lastHitID;
-        //G4double previousTime;
 
     protected:
          virtual G4bool ProcessHits(G4Step*aStep,G4TouchableHistory*ROhist);

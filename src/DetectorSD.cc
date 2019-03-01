@@ -3,10 +3,17 @@
 #include "G4PrimaryParticle.hh"
 #include "PrimaryParticleInformation.hh"
 
-DetectorSD::DetectorSD(G4String name)
-    :G4VSensitiveDetector(name)
+DetectorSD::DetectorSD(G4String name, G4int scinSum)
+    :G4VSensitiveDetector(name), totScinNum(scinSum)
 {
      collectionName.insert("detectorCollection");
+
+    for (G4int i=0; i<=totScinNum; i++)
+    {
+        previousHitHistory.push_back(-1);
+        previousHitTimeHistory.push_back(0.);
+    }
+
 }
 
 DetectorSD::~DetectorSD()
@@ -21,12 +28,14 @@ void DetectorSD::Initialize(G4HCofThisEvent* HCE)
     { HCID = GetCollectionID(0); }
     HCE->AddHitsCollection(HCID,fDetectorCollection);
 
-    for (G4int i=0; i<totScinNum; i++)
+    for (G4int i=0; i<=totScinNum; i++)
     {
         previousHitHistory[i] = -1;
-        previousHitTimeHistory[i] = 0;
+        previousHitTimeHistory[i] = 0.;
     }
+
 }
+
 
 
 G4bool DetectorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* )
@@ -39,7 +48,6 @@ G4bool DetectorSD::ProcessHits(G4Step* aStep, G4TouchableHistory* )
     G4VPhysicalVolume* physVol = theTouchable->GetVolume();
     G4int   currentScinCopy = physVol->GetCopyNo();
     G4double currentTime = aStep->GetPreStepPoint()->GetGlobalTime();
-
 
 
 

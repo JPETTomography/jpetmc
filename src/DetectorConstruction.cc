@@ -431,16 +431,21 @@ void DetectorConstruction::ConstructFrameCAD()
 
 G4int DetectorConstruction::ReturnNumberOfScintillators()
 {
-      return 193;
+      if(fLoadModularLayer){
+            return 504;
+      } else {
+            return 192;
+      }
 }
 
 void DetectorConstruction::ConstructSDandField()
 {
       if(!detectorSD.Get()){
-        DetectorSD* det = new DetectorSD("/mydet/detector");
+        DetectorSD* det = new DetectorSD("/mydet/detector",ReturnNumberOfScintillators());
         detectorSD.Put(det);
       }
         G4SDManager::GetSDMpointer()->AddNewDetector(detectorSD.Get());
         SetSensitiveDetector(scinLog,detectorSD.Get());
+        if(fLoadModularLayer) SetSensitiveDetector(scinLogInModule,detectorSD.Get());
 
 }
