@@ -12,6 +12,9 @@
 #include "G4RegionStore.hh"
 
 #include "DetectorConstructionMessenger.hh"
+#include "DetectorConstants.hh"
+
+using namespace detector_constants;
 
 DetectorConstruction* DetectorConstruction::fInstance = 0;
 
@@ -58,7 +61,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
 
     // world 
-     worldSolid   = new G4Box("world", world_hx, world_hy, world_hz);
+     worldSolid   = new G4Box("world", world_size[0], world_size[1], world_size[2]);
      worldLogical  = new G4LogicalVolume(worldSolid,air,"worldLogical");  
      worldPhysical = new G4PVPlacement(0,G4ThreeVector(),worldLogical,"worldPhysical",0,false,0,checkOverlaps);                
      
@@ -236,7 +239,7 @@ void DetectorConstruction::ConstructTargetRun3()
 void DetectorConstruction::ConstructScintillators()
 {
     // scintillator
-    G4Box* scinBox = new G4Box("scinBox", scinDim_x/2.0 ,scinDim_y/2.0 , scinDim_z/2.0 );
+    G4Box* scinBox = new G4Box("scinBox", scinDim[0]/2.0 ,scinDim[1]/2.0 , scinDim[2]/2.0 );
     scinLog = new G4LogicalVolume(scinBox, scinMaterial , "scinLogical");
     //G4VisAttributes* BoxVisAtt =  new G4VisAttributes(G4Colour(0.3,0.4,.9));
     G4VisAttributes* BoxVisAtt =  new G4VisAttributes(G4Colour(0.447059,0.623529,0.811765));
@@ -244,10 +247,10 @@ void DetectorConstruction::ConstructScintillators()
     BoxVisAtt->SetForceSolid(true);
     scinLog->SetVisAttributes(BoxVisAtt);
 
-    G4Box* scinBoxFree = new G4Box("scinBoxFree", scinDim_x/2.0+wrappingShift ,scinDim_y/2.0+wrappingShift ,
-            scinDim_z/2.0 );
-    G4Box* wrappingBox = new G4Box("wrappingBox", scinDim_x/2.0+wrappingThickness,
-            scinDim_y/2.0+wrappingThickness , scinDim_z/2.0-1*cm );
+    G4Box* scinBoxFree = new G4Box("scinBoxFree", scinDim[0]/2.0+wrappingShift ,scinDim[1]/2.0+wrappingShift ,
+            scinDim[2]/2.0 );
+    G4Box* wrappingBox = new G4Box("wrappingBox", scinDim[0]/2.0+wrappingThickness,
+            scinDim[1]/2.0+wrappingThickness , scinDim[2]/2.0-1*cm );
     G4LogicalVolume* wrappingLog; 
 
     G4VisAttributes* BoxVisAttWrapping =  new G4VisAttributes(G4Colour(0.447059,0.623529,0.811765));
@@ -315,7 +318,7 @@ void DetectorConstruction::ConstructScintillatorsModularLayer()
 {
 
   //4th Layer : S. Sharma 20.06.2018
-  G4Box* scinBoxInModule = new G4Box("scinBoxInModule", scinDim_x_inModule/2.0, scinDim_y_inModule/2.0, scinDim_z/2.0);
+  G4Box* scinBoxInModule = new G4Box("scinBoxInModule", scinDim_inModule[0]/2.0, scinDim_inModule[1]/2.0, scinDim_inModule[2]/2.0);
   scinLogInModule = new G4LogicalVolume(scinBoxInModule, scinMaterial, "scinBoxInModule");
   G4VisAttributes* BoxVisAttI = new G4VisAttributes(G4Colour(0.105, 0.210, 0.210, 0.9));
   BoxVisAttI->SetForceWireframe(true);

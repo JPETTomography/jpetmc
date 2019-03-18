@@ -31,32 +31,6 @@
 class DetectorConstructionMessenger;
 
 
-const G4double world_hx = 1.0*m; ///< max world size
-const G4double world_hy = 1.0*m; ///< max world size
-const G4double world_hz = 1.0*m; ///< max world size
-
-// parameters for J-PET 
-const G4int layers = 3; ///< number of simulated laters in detector
-const G4double scinDim_x = 1.9*cm; ///<  X dimension of simulated strip
-const G4double scinDim_y = 0.7*cm; ///<  Y dimension of simulated strip
-const G4double scinDim_z = 50.0*cm; ///<  Z dimension of simulated strip
-const G4double radius[layers] = {42.5*cm,46.75*cm,57.5*cm}; ///< layer radius up to center of the strip
-const int nSegments[layers] = {48,48,96}; ///< number of segments in each layer
-
-const int extraLayers = 2;
-const int nSegmentsExtraLayers[2] = {96,96};
-const G4double radiusExtraLayers[2] = {509*mm, 533*mm};
-
-const G4double wrappingThickness = 2*25.4*pow(10,-6)*m; ///<  total width of used wrapping 
-const G4double wrappingShift = 1*pow(10,-5)*m; ///<  free space between wrapping and scinitlator 
-
-
-// parameters for modular layer (known as 4th layer)
-const G4double scinDim_x_inModule = 2.5*cm; ///<  X dimension of simulated strip
-const G4double scinDim_y_inModule = 0.6*cm; ///<  Y dimension of simulated strip
-
-const int modulesInModularLayer = 24;
-
 
 // debugging parameters
 const  G4bool checkOverlaps = false; ///< debugging purpose 
