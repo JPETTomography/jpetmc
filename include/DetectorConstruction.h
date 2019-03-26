@@ -91,7 +91,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
     void ConstructScintillators();
     //// create target used in run3 - big chamber no XAD material inside
     void ConstructTargetRun3();
-    //// create target used in run5 - small chamber + XAD material inside in a sandwitch form
+    //// create target used in run5 - small chamber + XAD material inside 
     void ConstructTargetRun5();
     //// create target used in run6 - big chamber + XAD material inside tube
     void ConstructTargetRun6();

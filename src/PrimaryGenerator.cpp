@@ -381,7 +381,6 @@ void PrimaryGenerator::GenerateTwoGammaVertex(G4PrimaryVertex* vertex )
         vertex->SetPrimary(particle[i]);
     }
 
-      // code from Nikodem
       G4ThreeVector gammaMom = particle[0]->GetMomentum();
       G4ThreeVector polarization1 = gammaMom.orthogonal().unit();
       polarization1 = polarization1.rotate( twopi * G4UniformRand() , gammaMom);

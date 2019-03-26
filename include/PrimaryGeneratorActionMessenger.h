@@ -35,7 +35,6 @@ class PrimaryGeneratorActionMessenger: public G4UImessenger
         G4UIcmdWithADoubleAndUnit* fGammaBeamSetEnergy;
         G4UIcmdWith3VectorAndUnit* fGammaBeamSetPosition;
         G4UIcmdWith3VectorAndUnit* fGammaBeamSetMomentum;
-        //G4UIcmdWith3Vector* fGammaBeamSetPolarization; ///< not implemented !
 
 
         G4UIcmdWithAString* fIsotopeSetShape;

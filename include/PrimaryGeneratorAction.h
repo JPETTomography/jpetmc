@@ -48,9 +48,9 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
         PrimaryGenerator* fPrimaryGenerator; 
         HistoManager* fHisto;
 
-        BeamParams* fBeam;
-        SourceParams* fIsotope;
-        G4int fNemaPoint;
+        BeamParams* fBeam = nullptr;
+        SourceParams* fIsotope = nullptr;
+        G4int fNemaPoint = -1;
 
 };
 #endif

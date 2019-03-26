@@ -33,12 +33,6 @@ PrimaryGeneratorActionMessenger::PrimaryGeneratorActionMessenger(PrimaryGenerato
     fGammaBeamSetMomentum->SetUnitCandidates("keV");
     fGammaBeamSetMomentum->SetParameterName("Xvalue","Yvalue","Zvalue",false);
 
-//    fGammaBeamSetPolarization = new G4UIcmdWith3Vector("/jpetmc/source/gammaBeam/setPolarization",this);
-//    fGammaBeamSetPolarization->SetGuidance("Set initial polarization of the gamma quanta beam");
-//    fGammaBeamSetPolarization->SetDefaultValue(G4ThreeVector(0,0,0));
-//    fGammaBeamSetPolarization->SetParameterName("Xvalue","Yvalue","Zvalue",false);
-//
-
     fIsotopeSetShape = new G4UIcmdWithAString("/jpetmc/source/isotope/setShape",this);
     fIsotopeSetShape->SetCandidates("cylinder");
 
@@ -79,7 +73,6 @@ PrimaryGeneratorActionMessenger::~PrimaryGeneratorActionMessenger()
     delete fGammaBeamSetEnergy;
     delete fGammaBeamSetPosition;
     delete fGammaBeamSetMomentum;
-    //delete fGammaBeamSetPolarization;
     delete fIsotopeSetCenter;
     delete fNemaPosition;
 }
