@@ -97,7 +97,7 @@ target_link_libraries(JPetMCClassesDict ${ROOT_LIBRARIES})
 # Create  a main program using the library
 ######################################################
 add_executable(jpet_mc ${sources} ${headers})
-target_link_libraries(jpet_mc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} JPetMCClassesDict cadmesh)
+target_link_libraries(jpet_mc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} JPetMCClassesDict ${cadmesh_LIBRARIES})
 
 foreach(file_i ${SCRIPT_FILES})
      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/scripts/${file_i} ${CMAKE_CURRENT_BINARY_DIR}/bin/${file_i} COPYONLY)

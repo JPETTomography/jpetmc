@@ -19,7 +19,6 @@ executeCommand "source /geant4-install/bin/geant4.sh"
 executeCommand "source /root-system/bin/thisroot.sh"
 executeCommand "export LD_LIBRARY_PATH=/CADMesh-install/lib:${LD_LIBRARY_PATH}"
 executeCommand "export cadmesh_DIR=/CADMesh-install"
-executeCommand "ls -la /CADMesh-install/lib"
 executeCommand "cmake .."
 executeCommand "make"
 
