@@ -1,0 +1,12 @@
+# Visualization setting
+#/control/execute init_vis.mac
+
+# Initialize kernel
+#/jpetmc/detector/loadOnlyScintillators
+/jpetmc/detector/loadJPetBasicGeom 
+
+/jpetmc/source/nema 4 
+
+/run/initialize
+
+/run/beamOn 10000

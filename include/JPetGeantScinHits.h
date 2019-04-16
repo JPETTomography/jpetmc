@@ -91,11 +91,11 @@ class JPetGeantScinHits : public TObject
         int fScinID;
         int fTrackID;
         int fTrackPDGencoding;
-        int fNumOfInteractions; ///< number of interaction taking place in single scintillator whish was classified as single hit; it may be a big number since electron deposits energy in many steps
-        int fGenGammaIndex;
-        int fGenGammaMultiplicity;
-        float fEneDep;
-        float fTime;
+        int fNumOfInteractions; ///< number of interaction taking place in single scintillator which was classified as single hit; it may be a big number since electron deposits energy in many steps
+        int fGenGammaIndex; ///< unequivocal number identifying gamma quanta
+        int fGenGammaMultiplicity; ///< 2- back-to-back; 3- 3gamma annihilation
+        float fEneDep; ///< deposited energy (sum if interact more than one gamma quanta < 80ps) 
+        float fTime;  ///< time of interaction in the scintillator with respect to the beta+ decay (start of simulation)
 
         TVector3 fPosition;
         TVector3 fPolarizationIn;

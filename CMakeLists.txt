@@ -4,8 +4,8 @@ cmake_minimum_required (VERSION 2.6)
 project(jpet_mc)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY bin)
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc  ${PROJECT_SOURCE_DIR}/src/*.cpp)
-file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh  ${PROJECT_SOURCE_DIR}/include/*.h)
+file(GLOB sources   ${PROJECT_SOURCE_DIR}/src/*.cpp)
+file(GLOB headers   ${PROJECT_SOURCE_DIR}/include/*.h)
 set(CMAKE_LIBRARY_PATH ${PROJECT_SOURCE_DIR}/lib)
 
 set(CMAKE_CXX_FLAGS "-std=c++11 -Wunused-parameter ")
@@ -24,6 +24,8 @@ set(SCRIPT_FILES
     vis.mac
     run3.mac
     run5.mac
+    run6.mac
+    nema.mac
     init_vis.mac
     singleBeam.mac
     extendedSource.mac
@@ -95,7 +97,7 @@ target_link_libraries(JPetMCClassesDict ${ROOT_LIBRARIES})
 # Create  a main program using the library
 ######################################################
 add_executable(jpet_mc ${sources} ${headers})
-target_link_libraries(jpet_mc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} JPetMCClassesDict cadmesh)
+target_link_libraries(jpet_mc ${Geant4_LIBRARIES} ${ROOT_LIBRARIES} JPetMCClassesDict ${cadmesh_LIBRARIES})
 
 foreach(file_i ${SCRIPT_FILES})
      configure_file(${CMAKE_CURRENT_SOURCE_DIR}/scripts/${file_i} ${CMAKE_CURRENT_BINARY_DIR}/bin/${file_i} COPYONLY)

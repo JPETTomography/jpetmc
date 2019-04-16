@@ -1,0 +1,9 @@
+# Initialize kernel
+#
+#/control/execute init_vis.mac
+
+/jpetmc/detector/loadGeomForRun 6 
+/run/initialize
+
+/run/beamOn 1000000
+#
