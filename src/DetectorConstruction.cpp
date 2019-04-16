@@ -11,8 +11,8 @@
 #include "G4PhysicalVolumeStore.hh"
 #include "G4RegionStore.hh"
 
-#include "DetectorConstructionMessenger.hh"
-#include "DetectorConstants.hh"
+#include "DetectorConstructionMessenger.h"
+#include "DetectorConstants.h"
 
 using namespace detector_constants;
 
