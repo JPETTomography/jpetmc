@@ -48,16 +48,16 @@ mark_as_advanced(VERSION_MAJOR VERSION_MINOR VERSION_PATCH)
 ################################################################################
 # Provide scripts in a folder with a binary
 set(SCRIPT_FILES
-  vis.mac
-  run3.mac
-  run5.mac
-  run6.mac
-  run7.mac
-  nema.mac
-  init_vis.mac
-  singleBeam.mac
-  extendedSource.mac
-)
+    vis.mac
+    run3.mac
+    run5.mac
+    run6.mac
+    runCosmic.mac
+    nema.mac
+    init_vis.mac
+    singleBeam.mac
+    extendedSource.mac
+    )
 
 set(PARAMETERS_FILES
   PARAMETERS.md

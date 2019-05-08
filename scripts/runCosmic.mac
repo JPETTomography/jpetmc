@@ -1,0 +1,8 @@
+# Initialize kernel
+#
+#/control/execute init_vis.mac
+
+/jpetmc/source/cosmiscOnly
+/run/initialize
+
+/run/beamOn 10000
