@@ -14,6 +14,7 @@
 #include "G4UIcmdWithAnInteger.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
 #include "G4UIcmdWith3Vector.hh"
+#include "G4UIcmdWithoutParameter.hh"
 
 class PrimaryGeneratorAction;
 
@@ -42,6 +43,7 @@ class PrimaryGeneratorActionMessenger: public G4UImessenger
         G4UIcmdWithADoubleAndUnit* fIsotopeSetShapeDimCylinderRadius; 
         G4UIcmdWithADoubleAndUnit* fIsotopeSetShapeDimCylinderZ; 
         G4UIcmdWith3Vector* fIsotopeSetCenter;
+	G4UIcmdWithoutParameter* fCosmicOnly;
 
 
         G4UIcmdWithAnInteger* fNemaPosition;

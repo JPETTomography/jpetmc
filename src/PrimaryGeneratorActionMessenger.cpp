@@ -60,6 +60,8 @@ PrimaryGeneratorActionMessenger::PrimaryGeneratorActionMessenger(PrimaryGenerato
     fNemaPosition->SetGuidance("Give nema point number to simulate (1-6) ");
     fNemaPosition->SetDefaultValue(1);
 
+    fCosmicOnly = new G4UIcmdWithoutParameter("/jpetmc/source/cosmiscOnly",this);
+    fCosmicOnly->SetGuidance("Generate only cosmics");
 
 }
 
@@ -75,6 +77,7 @@ PrimaryGeneratorActionMessenger::~PrimaryGeneratorActionMessenger()
     delete fGammaBeamSetMomentum;
     delete fIsotopeSetCenter;
     delete fNemaPosition;
+    delete fCosmicOnly;
 }
 
 
@@ -134,6 +137,9 @@ void PrimaryGeneratorActionMessenger::SetNewValue(G4UIcommand* command, G4String
     }
 
 
+    if(command==fCosmicOnly){
+        fPrimGen->SetSourceTypeInfo("cosmic");
+    }
 
 }
 

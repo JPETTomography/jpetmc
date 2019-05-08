@@ -21,6 +21,7 @@
 #include "DetectorConstruction.h"
 #include "DetectorConstants.h"
 
+#include "G4ParticleGun.hh"
 
 using namespace detector_constants;
 
@@ -260,6 +261,49 @@ void PrimaryGenerator::GeneratePrimaryVertex(G4Event* event)
 
 
 }
+
+void PrimaryGenerator::GenerateCosmics(G4Event* anEvent)
+{
+  G4ParticleGun* fParticleGun  = new G4ParticleGun(1);
+
+  G4ParticleDefinition* particle
+           = G4ParticleTable::GetParticleTable()->FindParticle("mu+");
+  fParticleGun->SetParticleDefinition(particle);
+  fParticleGun->SetParticleEnergy(3*GeV);  
+  fParticleGun->SetParticleMomentumDirection(G4ThreeVector(0.,-1.,0.));
+
+
+  // randomized position
+  G4double size = 0.9, sizex = world_size[0], sizey = world_size[1], sizez = world_size[2]; 
+
+  G4double x0 = size * sizex * (G4UniformRand()-0.5);
+  G4double z0 = size * sizez * (G4UniformRand()-0.5);
+  G4double y0 = size * sizey;
+  fParticleGun->SetParticlePosition(G4ThreeVector(x0,y0,z0));
+
+//////////////////////////////////////////////////////////////////
+  G4double theta = 0.0,phi = 0.0,CosSqrTheta;
+
+	phi = G4UniformRand()*twopi; // 0 to 360, where UniformRand is a random number from [0,1]
+	 
+	do{
+		theta = 0+G4UniformRand()*twopi/4; //-90 to 90 degree 
+		G4double number = G4UniformRand();
+		CosSqrTheta = std::cos(theta)*std::cos(theta);
+		//G4cout<<std::cos(90)<<std::cos(3.14);
+		if(number < CosSqrTheta)
+ 		break;
+	}
+	while(true);
+	//G4double u = CosSqrTheta*std::cos(phi),v = -1,w = CosSqrTheta*std::sin(phi);
+
+	G4double u = std::sin(theta)*std::cos(phi),v = -1*std::cos(theta),w = std::sin(theta)*std::sin(phi);
+ 	fParticleGun->SetParticleMomentumDirection(G4ThreeVector(u,v,w)); 
+
+ //create vertex
+ fParticleGun->GeneratePrimaryVertex(anEvent);
+}
+
 
 
 G4ThreeVector PrimaryGenerator::VertexUniformInCylinder(G4double rIn, G4double zmax)

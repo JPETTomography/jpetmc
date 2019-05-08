@@ -54,6 +54,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
         fPrimaryGenerator->GenerateIsotope(fIsotope,event);
     } else if (GetSourceTypeInfo() == ("nema")) {
         fPrimaryGenerator->GenerateNema(GetNemaPoint(),event);
+    } else if (GetSourceTypeInfo() == ("cosmic")) {
+        fPrimaryGenerator->GenerateCosmics(event);
     } else {
           G4Exception("PrimaryGeneratorAction","PG04",FatalException,
                  "Required source type is not allowed");

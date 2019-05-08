@@ -41,7 +41,7 @@ class PrimaryGeneratorAction : public G4VUserPrimaryGeneratorAction
     private:
 
         G4String fGenerateSourceType;///< "run", "beam", "isotope" 
-        G4String fAllowedSourceTypes[4] = {"run", "beam", "isotope", "nema"};
+        G4String fAllowedSourceTypes[5] = {"run", "beam", "isotope", "nema", "cosmic"};
 
         PrimaryGeneratorActionMessenger* fMessenger; 
 
