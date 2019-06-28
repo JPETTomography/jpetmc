@@ -363,7 +363,7 @@ void DetectorConstruction::ConstructScintillatorsModularLayer()
   G4int numberofModules = 0;
 
  // for(int k = 1; k<3; k++)
-  for(int k = 1; k<3; k++)
+  for(int k = 1; k<2; k++)
   {
    // icopyI++;
     G4cout<<" copy number = "<<icopyI<<G4endl;

@@ -78,7 +78,7 @@ if(ROOT_FOUND AND ROOT_VERSION VERSION_LESS "6.0")
 endif()
 
 set(ROOT_CXX_FLAGS "-std=c++11 -Wunused-parameter")
-include(${ROOT_USE_FILE})
+#include(${ROOT_USE_FILE})
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include) 
 include_directories(SYSTEM  ${Geant4_INCLUDE_DIR} ${ROOT_INCLUDE_DIR})
