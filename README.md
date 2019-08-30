@@ -13,7 +13,7 @@ and sources. In general, user can modify the source code and incorporate in a ea
 needed geometry. Several user examples are available directly in a form of macros.
 
 <p align="right">
-  <img src="docs/logo_merged.png", alt="J-PET logo" />
+  <img src="docs/logo_merged.png" />
 </p>
 
 
