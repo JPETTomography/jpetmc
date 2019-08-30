@@ -12,8 +12,8 @@ Detector geometry consists of following components: layers of the scintillators,
 and sources. In general, user can modify the source code and incorporate in a easy way any type of
 needed geometry. Several user examples are available directly in a form of macros.
 
-<p align="right">
-  <img src="docs/logo_merged.png" alt="J-PET logo">
+<p align="center">
+  <img src="docs/logo_merged.png", alt="J-PET logo" />
 </p>
 
 
