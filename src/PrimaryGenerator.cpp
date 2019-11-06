@@ -265,9 +265,9 @@ void PrimaryGenerator::GeneratePrimaryVertex(G4Event* event)
 void PrimaryGenerator::GenerateCosmics(G4Event* anEvent)
 {
 G4ParticleGun* fParticleGun  = new G4ParticleGun(1);
-G4double FluxMu = G4UniformRand()*100;
+G4double FractionMu = G4UniformRand()*100;
 G4ParticleDefinition* particle;
-if(FluxMu > 44){
+if(FractionMu > 44){
   particle = G4ParticleTable::GetParticleTable()->FindParticle("mu+");
 }
 else{
@@ -418,175 +418,11 @@ else
 	v = -sinTheta*std::sin(phi);
 	w = -std::cos(phi)*sinTheta;
 }
-	//G4AnalysisManager::Instance()->FillH1(68, thetas);
 	fParticleGun->SetParticlePosition(G4ThreeVector(X_pos,Y_pos,Z_pos));
-	G4AnalysisManager::Instance()->FillH1(69, phi);
- 	//fParticleGun->SetParticleMomentumDirection(G4ThreeVector(u,v,w)); 
+	///fParticleGun->SetParticleMomentumDirection(G4ThreeVector(u,v,w)); 
 
  //create vertex
  fParticleGun->GeneratePrimaryVertex(anEvent);;
-G4ParticleDefinition* particle;
-
- FluxMu = G4UniformRand()*100;
-if(FluxMu > 44){
-  particle = G4ParticleTable::GetParticleTable()->FindParticle("mu+");
-}
-else{
-  particle = G4ParticleTable::GetParticleTable()->FindParticle("mu-");
-}
-  fParticleGun->SetParticleDefinition(particle);
-  fParticleGun->SetParticleEnergy(4*GeV);  
-
- G4double thetas,phi,R_Sphere = 5*m;
-
-G4double ThetaStep = 360/96,ThetaStep2 = 360/48;
-G4int steps = (G4int)(G4UniformRand()*96),steps2,steps3 = (G4int)(G4UniformRand()*48);
-steps2 = steps3;
-G4double R = 57.5*cm,R_2 = 46.65*cm,R_3 = 42.4*cm,xCryst,yCryst,zCryst,xMidCryst,yMidCryst,xInnerCryst,yInnerCryst;
-G4double Y1 = 1.875*cm;
-G4double X1 = std::sqrt(std::pow(R,2.)-std::pow(Y1,2.));
-G4double X2 = std::sqrt(std::pow(R_2,2.)-std::pow(Y1,2.));
-G4double X3 = std::sqrt(std::pow(R_3,2.)-std::pow(Y1,2.));
-G4double length = -9.5*mm + G4UniformRand()*19*mm;
-G4double width = -3.5*mm + G4UniformRand()*7*mm;
-G4double ScintCenter = steps*ThetaStep;
-G4double ScintMidCenter = steps2*ThetaStep2;
-G4double ScintInnerCenter = steps3*ThetaStep2;
-  //Selection of hit's position from scintillator. Each scintillator SHOULD BE hited. 
-  xCryst = (R+length)*std::cos(atan(Y1/X1) + ScintCenter); 
-  yCryst = (R+width)*std::sin(atan(Y1/X1) + ScintCenter);
-  zCryst = -25*cm + G4UniformRand()*50*cm;
-  //Second Ring Crystals
-  xMidCryst = (R_2+length)*std::cos(atan(Y1/X2) + ScintMidCenter); 
-  yMidCryst = (R_2+width)*std::sin(atan(Y1/X2) + ScintMidCenter);
-  //Third Ring Crystals
-  xInnerCryst = (R_3+length)*std::cos(atan(Y1/X3) + ScintMidCenter); 
-  yInnerCryst = (R_3+width)*std::sin(atan(Y1/X3) + ScintMidCenter);
-//G4AnalysisManager::Instance()->FillH2(5,xMidCryst,zCryst);
-G4double X_pos,Y_pos,Z_pos;
-G4double sinTheta,cosTheta,ThetaAngle; 
-G4double u,v,w;
-  phi = G4UniformRand()*twopi; // 0 to 360, where UniformRand is a random number from [0,1]
-//Outer Ring hits	
-if((ScintCenter>=90)&&(ScintCenter<=270))
-{
-	do{
-		ThetaAngle = -G4UniformRand()*twopi/4; 
-		cosTheta = std::cos(ThetaAngle);
- 		if(G4UniformRand() < cosTheta*cosTheta) 
- 		break;
-	}
-	while(true);
-	sinTheta = std::sqrt(1-pow(cosTheta,2));
-	thetas = std::acos(cosTheta);
-	X_pos =xCryst + R_Sphere*cosTheta;
-	Y_pos =yCryst + R_Sphere*sinTheta*std::sin(phi);
-	Z_pos =zCryst + R_Sphere*std::cos(phi)*sinTheta;
-	u = -cosTheta;
-	v = -sinTheta*std::sin(phi);
-	w = -std::cos(phi)*sinTheta;
-}
-else
-{
-	do{
-		ThetaAngle = G4UniformRand()*twopi/4; 
-		cosTheta = std::cos(ThetaAngle);	
-		if(G4UniformRand() < cosTheta*cosTheta) 
- 		break;
-	}
-	while(true);
-	sinTheta = std::sqrt(1-pow(cosTheta,2));
-	thetas = std::acos(cosTheta);
-	X_pos =xCryst + R_Sphere*cosTheta;
-	Y_pos =yCryst + R_Sphere*sinTheta*std::sin(phi);
-	Z_pos =zCryst + R_Sphere*std::cos(phi)*sinTheta;
-	u = -cosTheta;
-	v = -sinTheta*std::sin(phi);
-	w = -std::cos(phi)*sinTheta;
-}
-/// Middle Ring hits
-if((ScintMidCenter>=90)&&(ScintMidCenter<=270))
-{
-	do{
-		ThetaAngle = -G4UniformRand()*twopi/4; 
-		cosTheta = std::cos(ThetaAngle);
- 		if(G4UniformRand() < cosTheta*cosTheta) 
- 		break;
-	}
-	while(true);
-	sinTheta = std::sqrt(1-pow(cosTheta,2));
-	thetas = std::acos(cosTheta);
-	X_pos =xMidCryst + R_Sphere*cosTheta;
-	Y_pos =yMidCryst + R_Sphere*sinTheta*std::sin(phi);
-	Z_pos =zCryst + R_Sphere*std::cos(phi)*sinTheta;
-	u = -cosTheta;
-	v = -sinTheta*std::sin(phi);
-	w = -std::cos(phi)*sinTheta;
-}
-else
-{
-	do{
-		///// This is an incorrect way of cosTheta selection. Should be changed!!!!
-		ThetaAngle = G4UniformRand()*twopi/4; 
-		cosTheta = std::cos(ThetaAngle);	
-		if(G4UniformRand() < cosTheta*cosTheta) 
- 		break;
-	}
-	while(true);
-	sinTheta = std::sqrt(1-pow(cosTheta,2));
-	thetas = std::acos(cosTheta);
-	X_pos =xMidCryst + R_Sphere*cosTheta;
-	Y_pos =yMidCryst + R_Sphere*sinTheta*std::sin(phi);
-	Z_pos =zCryst + R_Sphere*std::cos(phi)*sinTheta;
-	u = -cosTheta;
-	v = -sinTheta*std::sin(phi);
-	w = -std::cos(phi)*sinTheta;
-}
-/// Inner Ring hits	
-if((ScintInnerCenter>=90)&&(ScintInnerCenter<=270))
-{
-	do{
-		ThetaAngle = -G4UniformRand()*twopi/4; 
-		cosTheta = std::cos(ThetaAngle);
- 		if(G4UniformRand() < cosTheta*cosTheta) 
- 		break;
-	}
-	while(true);
-	sinTheta = std::sqrt(1-pow(cosTheta,2));
-	thetas = std::acos(cosTheta);
-	X_pos =xInnerCryst + R_Sphere*cosTheta;
-	Y_pos =yInnerCryst + R_Sphere*sinTheta*std::sin(phi);
-	Z_pos =zCryst + R_Sphere*std::cos(phi)*sinTheta;
-	u = -cosTheta;
-	v = -sinTheta*std::sin(phi);
-	w = -std::cos(phi)*sinTheta;
-}
-else
-{
-	do{
-		ThetaAngle = G4UniformRand()*twopi/4; 
-		cosTheta = std::cos(ThetaAngle);	
-		if(G4UniformRand() < cosTheta*cosTheta) 
- 		break;
-	}
-	while(true);
-	sinTheta = std::sqrt(1-pow(cosTheta,2));
-	thetas = std::acos(cosTheta);
-	X_pos =xInnerCryst + R_Sphere*cosTheta;
-	Y_pos =yInnerCryst + R_Sphere*sinTheta*std::sin(phi);
-	Z_pos =zCryst + R_Sphere*std::cos(phi)*sinTheta;
-	u = -cosTheta;
-	v = -sinTheta*std::sin(phi);
-	w = -std::cos(phi)*sinTheta;
-}
-	//G4AnalysisManager::Instance()->FillH1(68, thetas);
-	fParticleGun->SetParticlePosition(G4ThreeVector(X_pos,Y_pos,Z_pos));
-	G4AnalysisManager::Instance()->FillH1(69, phi);
- 	//fParticleGun->SetParticleMomentumDirection(G4ThreeVector(u,v,w)); 
-
- //create vertex
- fParticleGun->GeneratePrimaryVertex(anEvent);
-	//////////////////////////////////////////////////////
 }
 
 
