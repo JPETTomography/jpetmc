@@ -74,7 +74,7 @@ public:
     }
   }
 
-  G4int GetRunNumber() const {return fRunNumber;};
+  G4int GetRunNumber() const { return fRunNumber; };
 
 
 private:
@@ -102,7 +102,10 @@ private:
   //! Create target used in run7
   void ConstructTargetRun7();
 
-  void ConstructLayers(std::vector<G4double>& radius_dynamic, G4int& numberofModules, G4double& AngDisp_dynamic, G4int& icopyI);
+  void ConstructLayers(
+    std::vector<G4double>& radius_dynamic, G4int& numberofModules,
+    G4double& AngDisp_dynamic, G4int icopyI
+  );
 
   //! Corresponds to JPET measurements; run 0 = user setup
   G4int fRunNumber;

@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2019 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -17,7 +17,7 @@
 
 VtxInformation::VtxInformation() :
   fVtxPosition(0), fTwoGammaGen(false), fThreeGammaGen(false),
-  fPromptGammaGen(false), fnRun(0), fLifetime(0) {}
+  fPromptGammaGen(false), fCosmicGen(false), fnRun(0), fLifetime(0) {}
 
 VtxInformation::~VtxInformation() {}
 
@@ -28,11 +28,17 @@ void VtxInformation::SetVtxPosition(G4double x, G4double y, G4double z)
   fVtxPosition.setZ(z);
 }
 
+void VtxInformation::SetVtxPosition(G4ThreeVector position)
+{
+  fVtxPosition = position;
+}
+
 void VtxInformation::Clear()
 {
   fTwoGammaGen = false;
   fThreeGammaGen = false;
   fPromptGammaGen = false;
+  fCosmicGen = false;
   fnRun = 0;
   fLifetime = 0.;
   fVtxPosition.setX(0);

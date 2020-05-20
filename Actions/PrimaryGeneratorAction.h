@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2019 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -70,7 +70,7 @@ public:
 
 private:
   G4String fGenerateSourceType;
-  G4String fAllowedSourceTypes[4] = {"run", "beam", "isotope", "nema"};
+  std::vector<G4String> fAllowedSourceTypes = {"run", "beam", "isotope", "nema", "cosmics"};
   PrimaryGeneratorActionMessenger* fMessenger = nullptr;
   PrimaryGenerator* fPrimaryGenerator = nullptr;
   HistoManager* fHisto = nullptr;

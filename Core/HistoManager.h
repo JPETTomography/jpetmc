@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2019 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -66,13 +66,19 @@ public:
   void SetHistogramCreation(bool tf) {fMakeControlHisto = tf;};
   bool GetMakeControlHisto() {return fMakeControlHisto;};
   void FillHistoGenInfo(const G4Event* anEvent);
+  void FillCosmicInfo(G4double theta, G4ThreeVector init, G4ThreeVector vtx);
   const JPetGeantEventInformation* GetGeantInfo() {return fGeantInfo;}
-  
-  void createHistogramWithAxes(TObject* object, TString xAxisName="Default X axis title [unit]", 
-                               TString yAxisName="Default Y axis title [unit]", TString zAxisName="Default Z axis title [unit]");
-  void fillHistogram(const char* name, double xValue, doubleCheck yValue=doubleCheck(), doubleCheck zValue=doubleCheck());
+  void createHistogramWithAxes(
+    TObject* object, TString xAxisName="Default X axis title [unit]",
+    TString yAxisName="Default Y axis title [unit]",
+    TString zAxisName="Default Z axis title [unit]"
+  );
+  void fillHistogram(
+    const char* name, double xValue, doubleCheck yValue=doubleCheck(),
+    doubleCheck zValue=doubleCheck()
+  );
   void writeError(const char* nameOfHistogram, const char* messageEnd );
-  
+
   template <typename T>
   T* getObject(const char* name)
   {
@@ -80,10 +86,15 @@ public:
     if (!tmp) {return nullptr;}
     return dynamic_cast<T*>(tmp);
   }
-  
+
 private:
+<<<<<<< HEAD
+  bool fBookStatus = false;
+  bool fMakeControlHisto = false;
+=======
   bool fbookStatus = false;
   bool fMakeControlHisto;
+>>>>>>> a99f6b0a00e9625ff61a1f07e34d1737590fbbb6
   TFile* fRootFile = nullptr;
   TTree* fTree = nullptr;
   TBranch* fBranchTrk = nullptr;
@@ -95,7 +106,7 @@ private:
   EventMessenger* fEvtMessenger = EventMessenger::GetEventMessenger();
 
   void BookHistograms();
-  
+
 protected:
   THashTable fStats;
   std::set<std::string> fErrorCounts;

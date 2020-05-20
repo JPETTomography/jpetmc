@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2019 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -15,6 +15,7 @@
 
 #include "../Info/PrimaryParticleInformation.h"
 #include "../Info/VtxInformation.h"
+#include "PrimaryGeneratorConstants.h"
 #include <G4HadPhaseSpaceGenbod.hh>
 #include <G4ParticleDefinition.hh>
 #include <G4PhysicalConstants.hh>
@@ -28,15 +29,15 @@
 #include <G4ParticleTable.hh>
 #include <Randomize.hh>
 #include <globals.hh>
+#include <TF1.h>
 
 PrimaryGenerator::PrimaryGenerator() : G4VPrimaryGenerator() {}
 
 PrimaryGenerator::~PrimaryGenerator() {}
 
 G4PrimaryVertex* PrimaryGenerator::GenerateThreeGammaVertex(
-  const G4ThreeVector vtxPosition, const G4double T0, const G4double lifetime3g
-) 
-{
+  const G4ThreeVector& vtxPosition, const G4double T0, const G4double lifetime3g
+) {
   G4PrimaryVertex* vertex = new G4PrimaryVertex();
   VtxInformation* info = new VtxInformation();
 
@@ -62,7 +63,7 @@ G4PrimaryVertex* PrimaryGenerator::GenerateThreeGammaVertex(
   Double_t weight_max = event.GetWtMax() * pow(10, -1);
   Double_t rwt;
   Double_t M_max = 7.65928 * pow(10, -6);
-  do 
+  do
   {
     weight = event.Generate();
     weight = weight * calculate_mQED( 511., event.GetDecay(0)->E() / keV, event.GetDecay(1)->E() / keV, event.GetDecay(2)->E() / keV );
@@ -70,7 +71,7 @@ G4PrimaryVertex* PrimaryGenerator::GenerateThreeGammaVertex(
   } while (rwt > weight);
 
   G4PrimaryParticle* particle[3];
-  for (int i = 0; i < 3; i++) 
+  for (int i = 0; i < 3; i++)
   {
     TLorentzVector* out = event.GetDecay(i);
     particle[i] = new G4PrimaryParticle( particleDefinition, out->Px(), out->Py(), out->Pz(), out->E() );
@@ -86,8 +87,8 @@ G4PrimaryVertex* PrimaryGenerator::GenerateThreeGammaVertex(
 }
 
 G4PrimaryVertex* PrimaryGenerator::GenerateTwoGammaVertex(
-  const G4ThreeVector vtxPosition, const G4double T0,  const G4double lifetime2g) 
-{
+  const G4ThreeVector& vtxPosition, const G4double T0, const G4double lifetime2g
+) {
   G4PrimaryVertex* vertex = new G4PrimaryVertex() ;
   VtxInformation* info = new VtxInformation();
 
@@ -113,7 +114,7 @@ G4PrimaryVertex* PrimaryGenerator::GenerateTwoGammaVertex(
   event.Generate();
   G4PrimaryParticle* particle[2];
 
-  for (int i = 0; i < 2; i++) 
+  for (int i = 0; i < 2; i++)
   {
     TLorentzVector* out = event.GetDecay(i);
     particle[i] = new G4PrimaryParticle( particleDefinition, out->Px(), out->Py(), out->Pz(), out->E());
@@ -138,10 +139,10 @@ G4PrimaryVertex* PrimaryGenerator::GenerateTwoGammaVertex(
   return vertex;
 }
 
-
 G4PrimaryVertex* PrimaryGenerator::GeneratePromptGammaVertex(
-  const G4ThreeVector vtxPosition, const G4double T0,  const G4double lifetimePrompt, const G4double energy) 
-{
+  const G4ThreeVector& vtxPosition, const G4double T0,
+  const G4double lifetimePrompt, const G4double energy
+) {
   G4PrimaryVertex* vertex = new G4PrimaryVertex();
   VtxInformation* info = new VtxInformation();
 
@@ -167,7 +168,7 @@ G4PrimaryVertex* PrimaryGenerator::GeneratePromptGammaVertex(
   return vertex;
 }
 
-void PrimaryGenerator::GenerateEvtSmallChamber(G4Event* event, const G4double effectivePositronRadius) 
+void PrimaryGenerator::GenerateEvtSmallChamber(G4Event* event, const G4double effectivePositronRadius)
 {
   G4ThreeVector chamberCenter = DetectorConstants::GetChamberCenter();
   G4ThreeVector vtxPosition;
@@ -182,29 +183,29 @@ void PrimaryGenerator::GenerateEvtSmallChamber(G4Event* event, const G4double ef
 
   if (evtFractions[0] > random) // pPs
   {
-    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0, 
+    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0,
                             material->GetLifetime(random, MaterialExtension::DecayChannel::Para2G)));
   }
   else if (evtFractions[0] + evtFractions[1] > random) // Direct 2G
   {
-    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0, 
-                            material->GetLifetime(random - evtFractions[0], MaterialExtension::DecayChannel::Direct)));   
+    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0,
+                            material->GetLifetime(random - evtFractions[0], MaterialExtension::DecayChannel::Direct)));
   }
   else if (evtFractions[0] + evtFractions[1] + evtFractions[2] > random) // oPs 2G
   {
-    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0, 
-                            material->GetLifetime(random - evtFractions[0] - evtFractions[1], MaterialExtension::DecayChannel::Ortho2G)));    
+    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0,
+                            material->GetLifetime(random - evtFractions[0] - evtFractions[1], MaterialExtension::DecayChannel::Ortho2G)));
   }
   else if (evtFractions[0] + evtFractions[1] + evtFractions[2] + evtFractions[3] > random) // Direct 3G
   {
-    event->AddPrimaryVertex(GenerateThreeGammaVertex(vtxPosition, T0, 
+    event->AddPrimaryVertex(GenerateThreeGammaVertex(vtxPosition, T0,
                             material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2], MaterialExtension::DecayChannel::Direct)));
   }
   else // oPs 3G
   {
-    event->AddPrimaryVertex( GenerateThreeGammaVertex(vtxPosition, T0, 
+    event->AddPrimaryVertex( GenerateThreeGammaVertex(vtxPosition, T0,
                             material->GetLifetime(random - evtFractions[1] - evtFractions[2] - evtFractions[3] - evtFractions[4], MaterialExtension::DecayChannel::Ortho3G)));
-  } 
+  }
 
   // Add prompt gamma from sodium
   G4ThreeVector promptVtxPosition = VertexUniformInCylinder(0.2 * cm, 0.2 * cm) + chamberCenter;
@@ -213,8 +214,8 @@ void PrimaryGenerator::GenerateEvtSmallChamber(G4Event* event, const G4double ef
 }
 
 std::tuple<G4ThreeVector, MaterialExtension*> PrimaryGenerator::GetVerticesDistributionInFilledSphere(
-  const G4ThreeVector center, G4double radius) 
-{
+  const G4ThreeVector& center, G4double radius
+) {
   G4bool lookForVtx = false;
   G4ThreeVector myPoint(0 * cm, 0 * cm, 0 * cm);
   MaterialExtension* mat;
@@ -222,7 +223,7 @@ std::tuple<G4ThreeVector, MaterialExtension*> PrimaryGenerator::GetVerticesDistr
   //! annihilation will occure only in materials where it was allowed
   //! @see MaterialExtension
   //! annihilation rate 2g/3g also depends on the material type
-  while (!lookForVtx) 
+  while (!lookForVtx)
   {
     myPoint = GetRandomPointInFilledSphere(radius) + center;
     theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
@@ -233,13 +234,13 @@ std::tuple<G4ThreeVector, MaterialExtension*> PrimaryGenerator::GetVerticesDistr
 }
 
 std::tuple<G4ThreeVector, MaterialExtension*> PrimaryGenerator::GetVerticesDistributionAlongStepVector(
-  const G4ThreeVector center, const G4ThreeVector direction) 
-{
+  const G4ThreeVector& center, const G4ThreeVector& direction
+) {
   G4bool lookForVtx = false;
   G4ThreeVector myPoint;
   G4ThreeVector myNextPoint = center;
   MaterialExtension* mat;
-  while (!lookForVtx) 
+  while (!lookForVtx)
   {
     myPoint = myNextPoint;
     theNavigator = G4TransportationManager::GetTransportationManager()->GetNavigatorForTracking();
@@ -249,6 +250,7 @@ std::tuple<G4ThreeVector, MaterialExtension*> PrimaryGenerator::GetVerticesDistr
   };
   return std::make_tuple(myPoint, mat);
 }
+
 void PrimaryGenerator::GenerateEvtLargeChamber(G4Event* event)
 {
   G4ThreeVector chamberCenter = DetectorConstants::GetChamberCenter();
@@ -264,34 +266,97 @@ void PrimaryGenerator::GenerateEvtLargeChamber(G4Event* event)
 
   if (evtFractions[0] > random) // pPs
   {
-    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0, 
+    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0,
                             material->GetLifetime(random, MaterialExtension::DecayChannel::Para2G)));
   }
   else if (evtFractions[0] + evtFractions[1] > random) // Direct 2G
   {
-    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0, 
-                            material->GetLifetime(random - evtFractions[0], MaterialExtension::DecayChannel::Direct)));   
+    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0,
+                            material->GetLifetime(random - evtFractions[0], MaterialExtension::DecayChannel::Direct)));
   }
   else if (evtFractions[0] + evtFractions[1] + evtFractions[2] > random) // oPs 2G
   {
-    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0, 
-                            material->GetLifetime(random - evtFractions[0] - evtFractions[1], MaterialExtension::DecayChannel::Ortho2G)));    
+    event->AddPrimaryVertex(GenerateTwoGammaVertex( vtxPosition, T0,
+                            material->GetLifetime(random - evtFractions[0] - evtFractions[1], MaterialExtension::DecayChannel::Ortho2G)));
   }
   else if (evtFractions[0] + evtFractions[1] + evtFractions[2] + evtFractions[3] > random) // Direct 3G
   {
-    event->AddPrimaryVertex(GenerateThreeGammaVertex(vtxPosition, T0, 
+    event->AddPrimaryVertex(GenerateThreeGammaVertex(vtxPosition, T0,
                             material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2], MaterialExtension::DecayChannel::Direct)));
   }
   else // oPs 3G
   {
-    event->AddPrimaryVertex( GenerateThreeGammaVertex(vtxPosition, T0, 
+    event->AddPrimaryVertex( GenerateThreeGammaVertex(vtxPosition, T0,
                             material->GetLifetime(random - evtFractions[1] - evtFractions[2] - evtFractions[3] - evtFractions[4], MaterialExtension::DecayChannel::Ortho3G)));
-  } 
+  }
 
   //! Add prompt gamma from sodium
-  G4ThreeVector promptVtxPosition =  VertexUniformInCylinder(0.2 * cm, 0.2 * cm) + chamberCenter;
-  event->AddPrimaryVertex(GeneratePromptGammaVertex( promptVtxPosition, 0.0f, 
-                            MaterialParameters::sodiumGammaTau, MaterialParameters::sodiumGammaEnergy));
+  G4ThreeVector promptVtxPosition = VertexUniformInCylinder(0.2 * cm, 0.2 * cm) + chamberCenter;
+  event->AddPrimaryVertex(GeneratePromptGammaVertex(
+    promptVtxPosition, 0.0f,
+    MaterialParameters::sodiumGammaTau,
+    MaterialParameters::sodiumGammaEnergy
+  ));
+}
+
+/**
+ * Generating vertex for cosmic radiation particle
+ * - choose randomly some point inside the detector cylinder,
+ * as cosmic particle has to fly through the detector anyway
+ * - choose particle momentum
+ * - choose muon charge with ratio of positive to negative muons
+ * in cosmic radiation at the sea level from https://arxiv.org/pdf/1005.5332.pdf
+ * - trace back the flight track of the particle to a point onto a cosmic roof,
+ * that is simulation worlds top dimension
+ * - add particle and vertex to an event with energy of 4 GeV, which is
+ * mean for muons at sea level, according to PDG (30.3.1)
+ * http://pdg.lbl.gov/2017/reviews/rpp2017-rev-cosmic-rays.pdf
+ */
+void PrimaryGenerator::GenerateCosmicVertex(G4Event* event)
+{
+  using namespace primary_generator_constatns;
+
+  // Generating particle
+  G4ParticleDefinition* muonDefinition = nullptr;
+  G4double muonFrac = MUON_CHARGE_RATIO/(1+MUON_CHARGE_RATIO);
+  if(muonFrac < G4UniformRand()){
+    muonDefinition = G4ParticleTable::GetParticleTable()->FindParticle("mu+");
+  } else {
+    muonDefinition = G4ParticleTable::GetParticleTable()->FindParticle("mu-");
+  }
+
+  // Generating angles
+  TF1 cos2Func("cos2", "pow(cos(x),2)", -twopi/4, twopi/4);
+  G4double theta = cos2Func.GetRandom();
+  G4double phi = G4UniformRand()*twopi;
+
+  // Cylinder of radius of third layer and half of sintillator dimension
+  auto posInDetector = VertexUniformInCylinder(DetectorConstants::radius[2], DetectorConstants::scinDim[2]/2);
+  auto cosmicVertex = projectPointToWorldRoof(posInDetector, theta, phi);
+
+  histos->FillCosmicInfo(theta, posInDetector, cosmicVertex->GetPosition());
+
+  VtxInformation* info = new VtxInformation();
+  info->SetCosmicGen(true);
+  info->SetVtxPosition(cosmicVertex->GetPosition());
+  cosmicVertex->SetUserInformation(info);
+
+  G4PrimaryParticle* muon = new G4PrimaryParticle(
+    muonDefinition,
+    -cos(theta)*MUON_MEAN_ENERGY_GEV,
+    sin(theta)*cos(phi)*MUON_MEAN_ENERGY_GEV,
+    sin(theta)*sin(phi)*MUON_MEAN_ENERGY_GEV
+  );
+
+  PrimaryParticleInformation* infoParticle = new PrimaryParticleInformation();
+  infoParticle->SetGammaMultiplicity(PrimaryParticleInformation::kBackground);
+  infoParticle->SetGeneratedGammaMultiplicity(PrimaryParticleInformation::kBackground);
+  infoParticle->SetIndex(0);
+  infoParticle->SetGenMomentum(-cos(theta), -sin(theta)*cos(phi), -sin(theta)*sin(phi));
+  muon->SetUserInformation(infoParticle);
+
+  cosmicVertex->SetPrimary(muon);
+  event->AddPrimaryVertex(cosmicVertex);
 }
 
 void PrimaryGenerator::GenerateBeam(BeamParams* beamParams, G4Event* event)
@@ -325,22 +390,22 @@ void PrimaryGenerator::GenerateIsotope(SourceParams* sourceParams, G4Event* even
   G4ThreeVector vtxPosition;
   if (sourceParams->GetShape() == "cylinder")
     vtxPosition = VertexUniformInCylinder(sourceParams->GetShapeDim(0), sourceParams->GetShapeDim(1)) + sourceParams->GetShapeCenterPosition();
-  
+
   if (sourceParams->GetGammasNumber() == 1)
   {
-    event->AddPrimaryVertex(GeneratePromptGammaVertex( vtxPosition, 0.0f, MaterialParameters::sodiumGammaTau, 
+    event->AddPrimaryVertex(GeneratePromptGammaVertex( vtxPosition, 0.0f, MaterialParameters::sodiumGammaTau,
                                                        MaterialParameters::sodiumGammaEnergy));
-  } 
+  }
   else if (sourceParams->GetGammasNumber() == 2)
   {
     //! generate 2g
     event->AddPrimaryVertex(GenerateTwoGammaVertex(vtxPosition, 0.0f, MaterialParameters::tauBulk));
-  } 
+  }
   else if ( sourceParams->GetGammasNumber() == 3 )
   {
     //! generate 3g
     event->AddPrimaryVertex(GenerateThreeGammaVertex(vtxPosition, 0.0f, MaterialParameters::oPsTauVaccum));
-  } 
+  }
   else
     G4Exception("PrimaryGenerator", "PG01", FatalException, "program does not know how many gamma quanta is needed to be simulated");
 }
@@ -379,7 +444,7 @@ void PrimaryGenerator::GenerateNema(G4int nemaPoint, G4Event* event)
     + G4ThreeVector(x_creation, y_creation, z_creation);
 
   event->AddPrimaryVertex(GenerateTwoGammaVertex(vtxPosition, 0.0f, MaterialParameters::tauBulk));
-  event->AddPrimaryVertex(GeneratePromptGammaVertex(vtxPosition, 0.0f, MaterialParameters::sodiumGammaTau, 
+  event->AddPrimaryVertex(GeneratePromptGammaVertex(vtxPosition, 0.0f, MaterialParameters::sodiumGammaTau,
                                                     MaterialParameters::sodiumGammaEnergy));
 }
 
@@ -396,7 +461,23 @@ G4ThreeVector PrimaryGenerator::VertexUniformInCylinder(G4double rIn, G4double z
   return positionA;
 }
 
-const G4ThreeVector PrimaryGenerator::GetRandomPointInFilledSphere(G4double radius)
+/**
+ * Projecting point from the cylinder onto "roof" of the simulation world
+ */
+G4PrimaryVertex* PrimaryGenerator::projectPointToWorldRoof(
+  const G4ThreeVector& posInDetector, G4double theta, G4double phi
+) {
+  G4double heightDiff = DetectorConstants::world_size[0]-posInDetector.x();
+  G4double yzDiff = heightDiff*tan(theta);
+  G4double vtx_y = posInDetector.y()-yzDiff*cos(phi);
+  G4double vtx_z = posInDetector.z()-yzDiff*sin(phi);
+
+  G4PrimaryVertex* vertex = new G4PrimaryVertex();
+  vertex->SetPosition(DetectorConstants::world_size[0], vtx_y, vtx_z);
+  return vertex;
+}
+
+G4ThreeVector PrimaryGenerator::GetRandomPointInFilledSphere(G4double radius) const
 {
   G4double theta = 2 * M_PI * G4UniformRand();
   G4double phi = acos(1 - 2 * G4UniformRand());
@@ -407,7 +488,7 @@ const G4ThreeVector PrimaryGenerator::GetRandomPointInFilledSphere(G4double radi
   return G4ThreeVector(x, y, z);
 }
 
-const G4ThreeVector PrimaryGenerator::GetRandomPointOnSphere(G4double radius)
+G4ThreeVector PrimaryGenerator::GetRandomPointOnSphere(G4double radius) const
 {
   G4double theta = 2 * M_PI * G4UniformRand();
   G4double phi = acos(1 - 2 * G4UniformRand());

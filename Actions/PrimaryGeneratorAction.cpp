@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2019 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -50,13 +50,14 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
 {
   //! if setup for dedicated run is set then ignore its modifications made by user
   G4int nRun = DetectorConstruction::GetInstance()->GetRunNumber();
-  if ( nRun != 0) {
+  if (nRun != 0) {
     if (GetSourceTypeInfo() != "run") {
       SetSourceTypeInfo("run");
     }
   }
 
-  if ( GetSourceTypeInfo() == ("run")) {
+  if (GetSourceTypeInfo() == ("run")) {
+
     if (nRun == 3) {
       fPrimaryGenerator->GenerateEvtLargeChamber(event);
     } else if (nRun == 5) {
@@ -64,18 +65,23 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
     } else if (nRun == 6 || nRun == 7) {
       fPrimaryGenerator->GenerateEvtLargeChamber(event);
     } else {
-      G4Exception("PrimaryGeneratorAction", "PG05", FatalException,
-                  "Called run with non-exisitng geometry");
+      G4Exception(
+        "PrimaryGeneratorAction", "PG05", FatalException, "Run nubmer is undefined."
+      );
     }
+
   } else if (GetSourceTypeInfo() == ("beam")) {
     fPrimaryGenerator->GenerateBeam(fBeam, event);
   } else if (GetSourceTypeInfo() == ("isotope")) {
     fPrimaryGenerator->GenerateIsotope(fIsotope, event);
   } else if (GetSourceTypeInfo() == ("nema")) {
     fPrimaryGenerator->GenerateNema(GetNemaPoint(), event);
+  } else if (GetSourceTypeInfo() == "cosmics") {
+    fPrimaryGenerator->GenerateCosmicVertex(event);
   } else {
-    G4Exception("PrimaryGeneratorAction", "PG05", FatalException,
-                "Called run with non-exisitng geometry");
+    G4Exception(
+      "PrimaryGeneratorAction", "PG05", FatalException, "Source type is undefined."
+    );
   }
 }
 

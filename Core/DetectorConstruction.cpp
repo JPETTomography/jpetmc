@@ -71,6 +71,7 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
 
   //! scintillators for standard setup; right now always loaded
   ConstructScintillators();
+  std::cout<< "Building 3 layers" << std::endl;
 
   if (fLoadModularLayer) {ConstructScintillatorsModularLayer();}
   if (fLoadCADFrame) {ConstructFrameCAD();}
@@ -78,6 +79,8 @@ G4VPhysicalVolume* DetectorConstruction::Construct()
   if (fRunNumber == 5) {ConstructTargetRun5();}
   if (fRunNumber == 6) {ConstructTargetRun6();}
   if (fRunNumber == 7) {ConstructTargetRun7();}
+
+  std::cout<< "Constructing finish " << std::endl;
 
   return fWorldPhysical;
 }
@@ -293,6 +296,8 @@ void DetectorConstruction::ConstructScintillators()
  */
 void DetectorConstruction::ConstructScintillatorsModularLayer()
 {
+  std::cout<< "Building Modular layer" << std::endl;
+
   G4Box* scinBoxInModule = new G4Box(
     "scinBoxInModule",
     DetectorConstants::scinDim_inModule[0] / 2.0,
@@ -339,50 +344,54 @@ void DetectorConstruction::ConstructScintillatorsModularLayer()
   //Single : for 24 modules layer
   //Double : for 8 and 16 layer configuration
 
-  switch (fGeoKind) {
+  switch (fGeoKind)
+  {
     case GeometryKind::Geo24ModulesLayer:
-      for (int i=0; i<13; i++) {radius_dynamic[i] = radius_24[i];}
+      std::cout<< "Modular single layer" << std::endl;
+      for(int i=0; i<13; i++) { radius_dynamic[i] = radius_24[i]; }
       numberofModules = 24;
       AngDisp_dynamic = AngDisp_24;
-      ConstructLayers(radius_dynamic, numberofModules, AngDisp_dynamic, icopyI);
+      ConstructLayers(radius_dynamic, numberofModules, AngDisp_dynamic, 201);
       break;
-    case GeometryKind::Geo24ModulesLayerDistributed:
-      for (int i=0; i<13; i++) {radius_dynamic[i] = radius_8[i];}
-      numberofModules = 8;
-      AngDisp_dynamic = AngDisp_8;
-      ConstructLayers(radius_dynamic, numberofModules, AngDisp_dynamic, icopyI);
-      for (int i=0; i<13; i++) {radius_dynamic[i] = radius_16[i];}
-      numberofModules = 16;
-      AngDisp_dynamic = AngDisp_16;
-      icopyI += 8*13;
-      ConstructLayers(radius_dynamic, numberofModules, AngDisp_dynamic, icopyI);
-      break;
-    default:
-      G4cout << " Not a proper option chosen : choose either Single or Double" << G4endl;
-      break;
-  }
+   case GeometryKind::Geo24ModulesLayerDistributed:
+    for(int i=0; i<13; i++) { radius_dynamic[i] = radius_8[i]; }
+    numberofModules = 8;
+    AngDisp_dynamic = AngDisp_8;
+    ConstructLayers( radius_dynamic, numberofModules, AngDisp_dynamic, icopyI);
+    for(int i=0; i<13; i++) {radius_dynamic[i] = radius_16[i]; }
+    numberofModules =16;
+    AngDisp_dynamic = AngDisp_16;
+    icopyI=297;
+    ConstructLayers( radius_dynamic, numberofModules, AngDisp_dynamic, icopyI);
+    break;
+   default:
+    G4cout<<" Not a proper option chosen : choose either Single or Double"<<G4endl;
+    break;
+  };
+
 }
 
-void DetectorConstruction::ConstructLayers(std::vector<G4double>& radius_dynamic, G4int& numberofModules, G4double& AngDisp_dynamic, G4int& icopyI)
-{
-  G4double phi = 0.0;
-  G4double phi1 = 0.0;
+void DetectorConstruction::ConstructLayers(
+  std::vector<G4double>& radius_dynamic, G4int& numberofModules,
+  G4double& AngDisp_dynamic, G4int icopyI
+) {
+ G4double phi = 0.0;
+ G4double phi1 = 0.0;
 
-  for(int i=0; i<numberofModules; i++)
-  {
+ 	for(int i=0; i<numberofModules; i++) {
     phi = (i*2*M_PI/numberofModules);
-    for(int j=-6; j<7; j++)
-    {
-        phi1 = phi + j * AngDisp_dynamic;
-        G4double radius_new = radius_dynamic[j + 6] * cm;
-        G4RotationMatrix rot = G4RotationMatrix();
-        rot.rotateZ(phi);
-        G4ThreeVector loc = G4ThreeVector(radius_new*cos(phi1), radius_new*sin(phi1), 0.0);
-        G4Transform3D transform(rot,loc);
-        G4String nameNewI = "scin_" + G4UIcommand::ConvertToString(icopyI + i * 13 + j + 6);
-        new G4PVPlacement(transform, fScinLogInModule, nameNewI, fWorldLogical, true, icopyI + i * 13 + j + 6, checkOverlaps);
-    }
-  }
+
+    for(int j=-6; j<7; j++) {
+      phi1 = phi + j * AngDisp_dynamic;
+			G4double radius_new = radius_dynamic[j + 6] * cm;
+			G4RotationMatrix rot = G4RotationMatrix();
+			rot.rotateZ(phi);
+			G4ThreeVector loc = G4ThreeVector(radius_new*cos(phi1), radius_new*sin(phi1),0.0);
+			G4Transform3D transform(rot,loc);
+			G4String nameNewI = "scin_"+G4UIcommand::ConvertToString(icopyI + i * 13 + j + 6);
+			new G4PVPlacement(transform, fScinLogInModule, nameNewI, fWorldLogical, true, icopyI + i * 13 + j + 6, checkOverlaps);
+		}
+	 }
 }
 
 /**

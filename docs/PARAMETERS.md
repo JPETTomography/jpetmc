@@ -72,3 +72,5 @@ Following options can be added to macro files, that are read by Geat4. Example f
  `/jpetmc/source/isotope/setPosition`  
 * set number of gamma quanta to generate 1 / 2 / 3 by the isotope  
  `/jpetmc/source/isotope/setNGamma`  
+* generate only cosmic muons  
+ `/jpetmc/source/cosmiscOnly`  
