@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2021 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -58,8 +58,11 @@ public:
   double GetPromptLifetime() const { return fPromptLifetime; };
   void SetMomentumGamma(int index, double x, double y, double z) {
     fMomentumGamma[index].SetXYZ(x, y, z);
-  }
-  TVector3 GetMomentumGamma(int index) const { return fMomentumGamma[index]; }
+  };
+  TVector3 GetMomentumGamma(int index) const { return fMomentumGamma[index]; };
+  void setCosmicEventTag(bool cosmicTag) { fCosmicEventTag = cosmicTag; };
+
+  bool getCosmicEventTag() const { return fCosmicEventTag; };
 
 private:
   const unsigned int fMaxGammaNumberIndex = 3;
@@ -77,9 +80,10 @@ private:
   //! generated lifetime of emmited prompt photon; filled only if prompt gamma is generated
   double fPromptLifetime = -1.0;
   std::vector<TVector3> fMomentumGamma;
+  bool fCosmicEventTag = false;
 
 private:
-  ClassDef(JPetGeantEventInformation, 6)
+  ClassDef(JPetGeantEventInformation, 7)
 };
 
 #endif /* !JPET_GEANT_EVENT_INFORMATION_H */

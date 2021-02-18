@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2021 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -31,12 +31,15 @@ public:
   void SetThreeGammaGen(G4bool tf) { fThreeGammaGen = tf; };
   void SetTwoGammaGen(G4bool tf) { fTwoGammaGen = tf; };
   void SetPromptGammaGen(G4bool tf) { fPromptGammaGen = tf; };
+  void SetCosmicGen(G4bool tf) { fCosmicGen = tf; };
   void SetRunNr(G4int x) { fnRun = x; };
+  void SetVtxPosition(G4ThreeVector position);
   void SetVtxPosition(G4double x, G4double y, G4double z);
   void SetLifetime(G4double x) { fLifetime = x; };
   G4bool GetThreeGammaGen() { return fThreeGammaGen; };
   G4bool GetTwoGammaGen() { return fTwoGammaGen; };
   G4bool GetPromptGammaGen() { return fPromptGammaGen; };
+  G4bool GetCosmicGammaGen() const { return fCosmicGen; };
   G4int GetRunNr() { return fnRun; };
   G4double GetVtxPositionX() { return fVtxPosition.x(); };
   G4double GetVtxPositionY() { return fVtxPosition.y(); };
@@ -48,6 +51,7 @@ private:
   G4bool fTwoGammaGen;
   G4bool fThreeGammaGen;
   G4bool fPromptGammaGen;
+  G4bool fCosmicGen;
   G4int fnRun;
   G4double fLifetime;
 };

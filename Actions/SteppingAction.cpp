@@ -72,6 +72,7 @@ void SteppingAction::UserSteppingAction(const G4Step* aStep)
   if (aStep->GetTrack()->GetParentID() != 0) {
     return;
   }
+  
   if (aStep->GetPostStepPoint()->GetPhysicalVolume()->GetLogicalVolume()->GetSensitiveDetector() != nullptr) {
     return;
   }

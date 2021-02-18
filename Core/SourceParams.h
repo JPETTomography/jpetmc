@@ -41,7 +41,7 @@ public:
 private:
   G4int howManyGammas;
   G4String shape;
-  G4String allowedShapes[1] = {"cylinder"};
+  G4String allowedShapes[2] = {"cylinder", "cuboid"};
   G4ThreeVector shapeCenterPosition;
   //! array of dimensions, for cylinder [0] - radius, [1] - z
   G4double shapeDim[10] = {0 * cm};

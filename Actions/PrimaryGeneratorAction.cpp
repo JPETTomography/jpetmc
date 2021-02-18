@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2021 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -71,7 +71,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
     } else {
       G4Exception(
         "PrimaryGeneratorAction", "PG05", FatalException,
-        "Called run with non-exisitng geometry"
+        "Called run with non-exisitng geometry (number)"
       );
     }
   } else if (GetSourceTypeInfo() == ("beam")) {
@@ -80,12 +80,15 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* event)
     fPrimaryGenerator->GenerateIsotope(fIsotope, event);
   } else if (GetSourceTypeInfo() == ("nema")) {
     fPrimaryGenerator->GenerateNema(GetNemaPoint(), event);
+  } else if (GetSourceTypeInfo() == ("cosmics")) {
+    fPrimaryGenerator->GenerateCosmicVertex(fIsotope, event, fHistoManager); 
   } else {
     G4Exception(
       "PrimaryGeneratorAction", "PG05", FatalException,
-      "Called run with non-exisitng geometry"
+      "Called non-existing source"
     );
   }
+  fHistoManager->SetDecayChannel(fPrimaryGenerator->GetDecayChannel());
 }
 
 void PrimaryGeneratorAction::SetSourceTypeInfo(G4String newSourceType)

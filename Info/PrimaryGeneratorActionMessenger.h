@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2021 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -57,6 +57,8 @@ private:
   G4UIcmdWithAnInteger* fNemaPosition = nullptr;
   G4UIcmdWith3VectorAndUnit* fSetChamberCenter = nullptr;
   G4UIcmdWithADoubleAndUnit* fSetChamberEffectivePositronRadius = nullptr;
+  G4UIcmdWithoutParameter* fCosmicOnly = nullptr;
+  G4UIcmdWithAString* fCosmicGenShape = nullptr;
 };
 
 #endif /* !PRIMARYGENERATORACTIONMESSENGER_H */

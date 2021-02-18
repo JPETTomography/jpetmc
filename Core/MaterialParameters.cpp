@@ -33,6 +33,7 @@ const G4double MaterialParameters::fSodiumGammaEnergy = 1.2770 * MeV;
 const G4double MaterialParameters::fSodiumGammaTau = 3.7 * ps;
 
 G4String MaterialParameters::fAnnihlationMode = "";
+G4double MaterialParameters::fpPs3Gfraction = 0;
 MaterialConstants MaterialParameters::fTemp = MaterialConstants({}, {}, 0., 0., {}, {});
 
 const MaterialConstants MaterialParameters::fXAD4 = MaterialConstants(
@@ -72,6 +73,7 @@ MaterialParameters::MaterialParameters()
   fDirectLifetimes.clear();
   fDirectIntensities.clear();
   fAnnihlationMode = "";
+  fpPs3Gfraction = 0.;
 }
 
 MaterialParameters::MaterialParameters(
@@ -121,6 +123,11 @@ void MaterialParameters::SetMaterialByName(MaterialID materialID)
 void MaterialParameters::SetAnnihilationMode(G4String mode)
 {
   fAnnihlationMode = mode;
+}
+
+void MaterialParameters::SetpPs3GFraction(double pPs3Gfraction)
+{
+  fpPs3Gfraction = pPs3Gfraction;
 }
 
 void MaterialParameters::AddoPsComponent(G4double lifetime, G4double probability)
@@ -247,7 +254,12 @@ G4double MaterialParameters::GetDirect3GTotalIntensity() const
 
 G4double MaterialParameters::GetpPs2GTotalIntensity() const
 {
-  return fpPsIntensity;
+  return (1-fpPs3Gfraction) * fpPsIntensity;
+}
+
+G4double MaterialParameters::GetpPs3GTotalIntensity() const
+{
+  return fpPs3Gfraction * fpPsIntensity;
 }
 
 G4double MaterialParameters::GetoPsIntensity2G(G4double oPsLifetime, G4double oPsProbability)

@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2021 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -15,6 +15,7 @@
 
 #include "../Info/PrimaryParticleInformation.h"
 #include "../Info/VtxInformation.h"
+#include "PrimaryGeneratorConstants.h"
 #include "DetectorConstruction.h"
 #include "MaterialParameters.h"
 #include "DetectorConstants.h"
@@ -29,13 +30,14 @@
 #include <G4ParticleTable.hh>
 #include <Randomize.hh>
 #include <globals.hh>
+#include <TF1.h>
 
 PrimaryGenerator::PrimaryGenerator() : G4VPrimaryGenerator() {}
 
 PrimaryGenerator::~PrimaryGenerator() {}
 
 G4PrimaryVertex* PrimaryGenerator::GenerateThreeGammaVertex( 
-  const MaterialExtension::DecayChannel channel, const G4ThreeVector vtxPosition, 
+  const DecayChannel channel, const G4ThreeVector vtxPosition, 
   const G4double T0, const G4double lifetime3g
 ) {
 
@@ -65,10 +67,10 @@ G4PrimaryVertex* PrimaryGenerator::GenerateThreeGammaVertex(
   Double_t weight_max = event.GetWtMax() * pow(10, -1);
   Double_t rwt = 1;
   Double_t M_max = 1;
-  if(channel == MaterialExtension::DecayChannel::Ortho3G || channel == MaterialExtension::DecayChannel::Direct) {
+  if (channel == DecayChannel::Para3G) {
+    M_max = 2.00967 * pow(10, 25);
+  } else {
     M_max = 7.65928 * pow(10, -6);
-  } else if (channel ==MaterialExtension::DecayChannel::Para3G) {
-    M_max = 2.00967*pow(10,25); 
   }
   do {
     weight = event.Generate();
@@ -196,45 +198,51 @@ void PrimaryGenerator::GenerateEvtSmallChamber(
   G4double T0 = (vtxPosition - chamberCenter).mag() / (0.6 * c_light);
 
   if (evtFractions[0] > random) {
-  // pPs
+  // pPs 2G
     event->AddPrimaryVertex(GenerateTwoGammaVertex(
       vtxPosition, T0,
-      material->GetLifetime(random, MaterialExtension::DecayChannel::Para2G)
+      material->GetLifetime(random, DecayChannel::Para2G)
     ));
+    fDecayChannel = DecayChannel::Para2G;
   } else if (evtFractions[0] + evtFractions[1] > random) {
   // Direct 2G
     event->AddPrimaryVertex(GenerateTwoGammaVertex(
       vtxPosition, T0,
-      material->GetLifetime(random - evtFractions[0], MaterialExtension::DecayChannel::Direct)
-    ));   
+      material->GetLifetime(random - evtFractions[0], DecayChannel::Direct2G)
+    ));
+    fDecayChannel = DecayChannel::Direct2G;
   } else if (evtFractions[0] + evtFractions[1] + evtFractions[2] > random) {
   // oPs 2G
     event->AddPrimaryVertex(GenerateTwoGammaVertex(
       vtxPosition, T0,
-      material->GetLifetime(random - evtFractions[0] - evtFractions[1], MaterialExtension::DecayChannel::Ortho2G)
-    ));    
+      material->GetLifetime(random - evtFractions[0] - evtFractions[1], DecayChannel::Ortho2G)
+    ));
+    fDecayChannel = DecayChannel::Ortho2G;
   } else if (evtFractions[0] + evtFractions[1] + evtFractions[2] + evtFractions[3] > random) {
-  // Direct 3G
-    event->AddPrimaryVertex(GenerateThreeGammaVertex(
-      MaterialExtension::DecayChannel::Direct, vtxPosition, T0,
-      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2], MaterialExtension::DecayChannel::Direct)
-    ));
-  } else if (evtFractions[0] + evtFractions[1] + evtFractions[2] + evtFractions[3] + evtFractions[4] > random) {
-  // oPs 3G
-    event->AddPrimaryVertex(GenerateThreeGammaVertex(
-      MaterialExtension::DecayChannel::Ortho3G, vtxPosition, T0,
-      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3], MaterialExtension::DecayChannel::Ortho3G)
-    ));
-  } else {
   // pPs 3G
     event->AddPrimaryVertex(GenerateThreeGammaVertex(
-      MaterialExtension::DecayChannel::Para3G, vtxPosition, T0,
-      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3]- evtFractions[4], MaterialExtension::DecayChannel::Para3G)
+      DecayChannel::Para3G, vtxPosition, T0,
+      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2], DecayChannel::Para3G)
     ));
+    fDecayChannel = DecayChannel::Para3G;
+  } else if (evtFractions[0] + evtFractions[1] + evtFractions[2] + evtFractions[3] + evtFractions[4] > random) {
+  // Direct 3G
+    event->AddPrimaryVertex(GenerateThreeGammaVertex(
+      DecayChannel::Direct3G, vtxPosition, T0,
+      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3], DecayChannel::Direct3G)
+    ));
+    fDecayChannel = DecayChannel::Direct3G;
+  } else {
+  // oPs 3G
+    event->AddPrimaryVertex(GenerateThreeGammaVertex(
+      DecayChannel::Ortho3G, vtxPosition, T0,
+      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3] - evtFractions[4], DecayChannel::Ortho3G)
+    ));
+    fDecayChannel = DecayChannel::Ortho3G;
   } 
 
   //! Add prompt gamma from sodium
-  G4ThreeVector promptVtxPosition = VertexUniformInCylinder(0.2 * cm, 0.2 * cm) + chamberCenter;
+  G4ThreeVector promptVtxPosition = GenerateVertexUniformInCylinder(0.2 * cm, 0.2 * cm) + chamberCenter;
   event->AddPrimaryVertex(GeneratePromptGammaVertex(
     promptVtxPosition, 0.0f, MaterialParameters::fSodiumGammaTau,
     MaterialParameters::fSodiumGammaEnergy
@@ -302,49 +310,121 @@ void PrimaryGenerator::GenerateEvtLargeChamber(G4Event* event)
   G4double T0 = (vtxPosition - chamberCenter).mag() / (0.6 * c_light);
 
   if (evtFractions[0] > random) {
-  // pPs
+  // pPs 2G
     event->AddPrimaryVertex(GenerateTwoGammaVertex(
       vtxPosition, T0,
-      material->GetLifetime(random, MaterialExtension::DecayChannel::Para2G)
+      material->GetLifetime(random, DecayChannel::Para2G)
     ));
+    fDecayChannel = DecayChannel::Para2G;
   } else if (evtFractions[0] + evtFractions[1] > random) {
   // Direct 2G
     event->AddPrimaryVertex(GenerateTwoGammaVertex(
       vtxPosition, T0,
-      material->GetLifetime(random - evtFractions[0], MaterialExtension::DecayChannel::Direct)
-    ));   
+      material->GetLifetime(random - evtFractions[0], DecayChannel::Direct2G)
+    ));
+    fDecayChannel = DecayChannel::Direct2G;
   } else if (evtFractions[0] + evtFractions[1] + evtFractions[2] > random) {
   // oPs 2G
     event->AddPrimaryVertex(GenerateTwoGammaVertex(
       vtxPosition, T0,
-      material->GetLifetime(random - evtFractions[0] - evtFractions[1], MaterialExtension::DecayChannel::Ortho2G)
-    ));    
+      material->GetLifetime(random - evtFractions[0] - evtFractions[1], DecayChannel::Ortho2G)
+    ));
+    fDecayChannel = DecayChannel::Ortho2G;
   } else if (evtFractions[0] + evtFractions[1] + evtFractions[2] + evtFractions[3] > random) {
-  // Direct 3G
-    event->AddPrimaryVertex(GenerateThreeGammaVertex(
-      MaterialExtension::DecayChannel::Direct, vtxPosition, T0,
-      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2], MaterialExtension::DecayChannel::Direct)
-    ));
-  } else if (evtFractions[0] + evtFractions[1] + evtFractions[2] + evtFractions[3] + evtFractions[4] > random) {
-  // oPs 3G
-    event->AddPrimaryVertex(GenerateThreeGammaVertex(
-      MaterialExtension::DecayChannel::Ortho3G, vtxPosition, T0,
-      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3], MaterialExtension::DecayChannel::Ortho3G)
-    ));
-  } else {
   // pPs 3G
     event->AddPrimaryVertex(GenerateThreeGammaVertex(
-      MaterialExtension::DecayChannel::Para3G, vtxPosition, T0,
-      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3]- evtFractions[4], MaterialExtension::DecayChannel::Para3G)
+      DecayChannel::Para3G, vtxPosition, T0,
+      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2], DecayChannel::Para3G)
     ));
-  }
+    fDecayChannel = DecayChannel::Para3G;
+  } else if (evtFractions[0] + evtFractions[1] + evtFractions[2] + evtFractions[3] + evtFractions[4] > random) {
+  // Direct 3G
+    event->AddPrimaryVertex(GenerateThreeGammaVertex(
+      DecayChannel::Direct3G, vtxPosition, T0,
+      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3], DecayChannel::Direct3G)
+    ));
+    fDecayChannel = DecayChannel::Direct3G;
+  } else {
+  // oPs 3G
+    event->AddPrimaryVertex(GenerateThreeGammaVertex(
+      DecayChannel::Ortho3G, vtxPosition, T0,
+      material->GetLifetime(random - evtFractions[0] - evtFractions[1] - evtFractions[2] - evtFractions[3] - evtFractions[4], DecayChannel::Ortho3G)
+    ));
+    fDecayChannel = DecayChannel::Ortho3G;
+  } 
 
   //! Add prompt gamma from sodium
-  G4ThreeVector promptVtxPosition = VertexUniformInCylinder(0.2 * cm, 0.2 * cm) + chamberCenter;
+  G4ThreeVector promptVtxPosition = GenerateVertexUniformInCylinder(0.2 * cm, 0.2 * cm) + chamberCenter;
   event->AddPrimaryVertex(GeneratePromptGammaVertex(
     promptVtxPosition, 0.0f, MaterialParameters::fSodiumGammaTau,
     MaterialParameters::fSodiumGammaEnergy
   ));
+}
+
+/**
+ * Generating vertex for cosmic radiation particle
+ * - choose randomly some point inside the cuboid covering the detector,
+ * as cosmic particle has to fly through the detector anyway
+ * - choose particle momentum
+ * - choose muon charge with ratio of positive to negative muons
+ * in cosmic radiation at the sea level from https://arxiv.org/pdf/1005.5332.pdf
+ * - trace back the flight track of the particle to a point onto a cosmic roof,
+ * that is simulation worlds top dimension
+ * - add particle and vertex to an event with energy of 4 GeV, which is
+ * mean for muons at sea level, according to PDG (30.3.1)
+ * http://pdg.lbl.gov/2017/reviews/rpp2017-rev-cosmic-rays.pdf
+ */
+void PrimaryGenerator::GenerateCosmicVertex(SourceParams* sourceParams, G4Event* event, HistoManager* histo)
+{
+  using namespace primary_generator_constants;
+
+  // Generating particle
+  G4ParticleDefinition* muonDefinition = nullptr;
+  G4double muonFrac = MUON_CHARGE_RATIO/(1+MUON_CHARGE_RATIO);
+  if (muonFrac < G4UniformRand()){
+    muonDefinition = G4ParticleTable::GetParticleTable()->FindParticle("mu+");
+  } else {
+    muonDefinition = G4ParticleTable::GetParticleTable()->FindParticle("mu-");
+  }
+
+  // Generating angles
+  TF1 cos2Func("cos2", "pow(cos(x),2)", -M_PI/2, M_PI/2);
+  G4double theta = cos2Func.GetRandom();
+  G4double phi = G4UniformRand()*2*M_PI;
+
+  G4ThreeVector posInDetector;
+  if (sourceParams->GetShape() == "cylinder") {
+    // Cylinder of radius of third layer and half of scintillator dimension
+    posInDetector = GenerateVertexUniformInCylinder(DetectorConstants::radius[2], DetectorConstants::scinDim[2]/2);
+  } else {
+    // Cuboid with dimension that covering whole detector
+    posInDetector = GenerateVertexUniformInCuboid(DetectorConstants::radius[2] + DetectorConstants::scinDim[0]/2, 
+                                                  DetectorConstants::radius[2] + DetectorConstants::scinDim[0]/2, 
+                                                  DetectorConstants::scinDim[2]/2);
+  }
+  auto cosmicVertex = projectPointToWorldRoof(posInDetector, theta, phi);
+
+  histo->FillCosmicInfo(theta, posInDetector, cosmicVertex->GetPosition());
+  VtxInformation* info = new VtxInformation();
+  info->SetCosmicGen(true);
+  info->SetVtxPosition(cosmicVertex->GetPosition());
+  cosmicVertex->SetUserInformation(info);
+  G4PrimaryParticle* muon = new G4PrimaryParticle(
+    muonDefinition,
+    -cos(theta)*MUON_MEAN_ENERGY_GEV,
+    sin(theta)*cos(phi)*MUON_MEAN_ENERGY_GEV,
+    sin(theta)*sin(phi)*MUON_MEAN_ENERGY_GEV
+  );
+
+  PrimaryParticleInformation* infoParticle = new PrimaryParticleInformation();
+  infoParticle->SetGammaMultiplicity(PrimaryParticleInformation::kBackground);
+  infoParticle->SetGeneratedGammaMultiplicity(PrimaryParticleInformation::kBackground);
+  infoParticle->SetIndex(0);
+  infoParticle->SetGenMomentum(-cos(theta), -sin(theta)*cos(phi), -sin(theta)*sin(phi));
+  muon->SetUserInformation(infoParticle);
+
+  cosmicVertex->SetPrimary(muon);
+  event->AddPrimaryVertex(cosmicVertex);
 }
 
 void PrimaryGenerator::GenerateBeam(BeamParams* beamParams, G4Event* event)
@@ -378,7 +458,7 @@ void PrimaryGenerator::GenerateIsotope(SourceParams* sourceParams, G4Event* even
   G4ThreeVector vtxPosition;
   if (sourceParams->GetShape() == "cylinder") {
     vtxPosition =
-      VertexUniformInCylinder(sourceParams->GetShapeDim(0), sourceParams->GetShapeDim(1))
+      GenerateVertexUniformInCylinder(sourceParams->GetShapeDim(0), sourceParams->GetShapeDim(1))
       + sourceParams->GetShapeCenterPosition();
   }
   if (sourceParams->GetGammasNumber() == 1) {
@@ -394,7 +474,7 @@ void PrimaryGenerator::GenerateIsotope(SourceParams* sourceParams, G4Event* even
   } else if (sourceParams->GetGammasNumber() == 3) {
     //! generate 3g
     event->AddPrimaryVertex(GenerateThreeGammaVertex(
-      MaterialExtension::DecayChannel::Ortho3G ,vtxPosition, 0.0f, MaterialParameters::foPsTauVaccum
+      DecayChannel::Ortho3G ,vtxPosition, 0.0f, MaterialParameters::foPsTauVaccum
     ));
   } else {
     G4Exception(
@@ -438,7 +518,7 @@ void PrimaryGenerator::GenerateNema(G4int nemaPoint, G4Event* event)
     y_creation = y_creation + 20.0 * cm;
   }
 
-  G4ThreeVector vtxPosition = VertexUniformInCylinder(0.1 * mm, 0.1 * mm)
+  G4ThreeVector vtxPosition = GenerateVertexUniformInCylinder(0.1 * mm, 0.1 * mm)
   + G4ThreeVector(x_creation, y_creation, z_creation);
 
   event->AddPrimaryVertex(GenerateTwoGammaVertex(
@@ -450,7 +530,7 @@ void PrimaryGenerator::GenerateNema(G4int nemaPoint, G4Event* event)
   ));
 }
 
-G4ThreeVector PrimaryGenerator::VertexUniformInCylinder(G4double rIn, G4double zmax)
+G4ThreeVector PrimaryGenerator::GenerateVertexUniformInCylinder(G4double rIn, G4double zmax)
 {
   G4double r = std::sqrt(pow(rIn, 2) * G4UniformRand());
   //! alpha uniform in (0, 2*pi)
@@ -461,6 +541,31 @@ G4ThreeVector PrimaryGenerator::VertexUniformInCylinder(G4double rIn, G4double z
   G4double z = zmax * (2 * G4UniformRand() - 1);
   G4ThreeVector positionA(r * ux, r * uy, z);
   return positionA;
+}
+
+G4ThreeVector PrimaryGenerator::GenerateVertexUniformInCuboid(G4double xMax, G4double yMax, G4double zMax)
+{
+  G4double x = 2 * xMax * G4UniformRand() - xMax;
+  G4double y = 2 * yMax * G4UniformRand() - yMax;
+  G4double z = 2 * zMax * G4UniformRand() - zMax;
+  G4ThreeVector position(x, y, z);
+  return position;
+}
+
+/**
+ * Projecting point from the cylinder onto "roof" of the simulation world
+ */
+G4PrimaryVertex* PrimaryGenerator::projectPointToWorldRoof(
+  const G4ThreeVector& posInDetector, G4double theta, G4double phi) 
+{
+  G4double heightDiff = DetectorConstants::world_size[0]-posInDetector.x();
+  G4double yzDiff = heightDiff*tan(theta);
+  G4double vtx_y = posInDetector.y()-yzDiff*cos(phi);
+  G4double vtx_z = posInDetector.z()-yzDiff*sin(phi);
+
+  G4PrimaryVertex* vertex = new G4PrimaryVertex();
+  vertex->SetPosition(DetectorConstants::world_size[0], vtx_y, vtx_z);
+  return vertex;
 }
 
 const G4ThreeVector PrimaryGenerator::GetRandomPointInFilledSphere(G4double radius)
@@ -484,15 +589,15 @@ const G4ThreeVector PrimaryGenerator::GetRandomPointOnSphere(G4double radius)
   return G4ThreeVector(x, y, z);
 }
 
-G4double PrimaryGenerator::calculate_mQED(const MaterialExtension::DecayChannel channel, Double_t mass_e, Double_t w1, Double_t w2, Double_t w3)
+G4double PrimaryGenerator::calculate_mQED(const DecayChannel channel, Double_t mass_e, Double_t w1, Double_t w2, Double_t w3)
 {
-  if(channel == MaterialExtension::DecayChannel::Ortho3G or channel == MaterialExtension::DecayChannel::Direct) {
-    return pow((mass_e - w1) / (w2 * w3), 2) + pow((mass_e - w2) / (w1 * w3), 2) + pow((mass_e - w3) / (w1 * w2), 2);
-  } else if (channel == MaterialExtension::DecayChannel::Para3G) {
+  if (channel == DecayChannel::Para3G) {
     return pow(w1*w2*w3,2)* pow(sin(acos((-pow(w1,2) - pow(w2,2) + pow(w3,2))/(2*w1*w2))) +
 				       sin(acos(( pow(w1,2) - pow(w2,2) - pow(w3,2))/(2*w3*w2))) +
 				       sin(acos((-pow(w1,2) + pow(w2,2) - pow(w3,2))/(2*w1*w3))), 2)* 
 				       (pow(mass_e-w3,2)*pow(w1-w2,2) + pow(mass_e-w1,2)*pow(w2-w3,2) + pow(mass_e-w2,2)*pow(w3-w1,2));
+  } else {
+    return pow((mass_e - w1) / (w2 * w3), 2) + pow((mass_e - w2) / (w1 * w3), 2) + pow((mass_e - w3) / (w1 * w2), 2);
   }
   return 0;
 }

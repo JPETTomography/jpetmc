@@ -83,6 +83,10 @@ Following options can be added to macro files, that are read by Geat4. Example f
  `/jpetmc/SaveSeed true`  
 * creation decay tree:  
  `/jpetmc/output/CreateDecayTree`  
+* generate only cosmic muons  
+ `/jpetmc/source/cosmicOnly
+* generate cosmic muons in cylinder or cuboid (by default in cuboid)  
+ `/jpetmc/source/cosmicGenShape [parameter - cuboid or cylinder]
 
 ## Creating .json file with geometry setup for J-PET Framework. If one of these two option will be put into macro, the output file will be created.
 * select a type of output file strucure - Big Barrel or Modular format (default "barrel" other possible "modular"):  

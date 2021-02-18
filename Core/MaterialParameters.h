@@ -53,6 +53,7 @@ public:
 
   static void ClearTemp();
   static void SetAnnihilationMode(G4String mode);
+  static void SetpPs3GFraction(double pPs3Gfraction);
 
   void SetMaterial(MaterialConstants mat);
   void SetMaterialByName(MaterialID materialID);
@@ -76,6 +77,7 @@ public:
   G4double GetDirect2GTotalIntensity() const;
   G4double GetDirect3GTotalIntensity() const;
   G4double GetpPs2GTotalIntensity() const;
+  G4double GetpPs3GTotalIntensity() const;
   G4double GetoPs2GLifetimeFromVector(double randNumber);
   G4double GetoPs3GLifetimeFromVector(double randNumber);
   G4double GetDirectLifetimeFromVector(double randNumber);
@@ -92,6 +94,7 @@ public:
   static const G4double fSodiumGammaEnergy;
   static const G4double fSodiumGammaTau;
   static G4String fAnnihlationMode;
+  static G4double fpPs3Gfraction;
 
   static const MaterialConstants fXAD4;
   static const MaterialConstants fAl;

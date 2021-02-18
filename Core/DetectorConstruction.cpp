@@ -45,7 +45,7 @@ DetectorConstruction* DetectorConstruction::GetInstance()
 }
 
 DetectorConstruction::DetectorConstruction() :
-G4VUserDetectorConstruction(), fRunNumber(0), fLoadScintillators(false),
+G4VUserDetectorConstruction(), fRunNumber(0), fLoadScintillators(true),
 fLoadCADFrame(false), fLoadWrapping(true), fLoadModularLayer(false)
 {
   InitializeMaterials();
@@ -109,17 +109,18 @@ void DetectorConstruction::ConstructSDandField()
 {
   if (!fDetectorSD.Get()) {
     DetectorSD* det = new DetectorSD(
-      "/mydet/detector", maxScinID, DetectorConstants::GetMergingTimeValueForScin()
+      "/mydet/detector", ReturnNumberOfScintillators(), 
+                                     DetectorConstants::GetMergingTimeValueForScin()
     );
     det->SetHistoManager(fHistoManager);
     fDetectorSD.Put(det);
   }
 
   G4SDManager::GetSDMpointer()->AddNewDetector(fDetectorSD.Get());
-  SetSensitiveDetector(fScinLog, fDetectorSD.Get());
-  if (fLoadModularLayer) {
+  if (fScinLog)
+    SetSensitiveDetector(fScinLog, fDetectorSD.Get());
+  if (fScinLogInModule)
     SetSensitiveDetector(fScinLogInModule, fDetectorSD.Get());
-  }
 }
 
 void DetectorConstruction::LoadGeometryForRun(G4int nr)
@@ -134,7 +135,6 @@ void DetectorConstruction::LoadGeometryForRun(G4int nr)
   }
 }
 
-// cppcheck-suppress unusedFunction
 G4int DetectorConstruction::ReturnNumberOfScintillators()
 {
   if (fLoadModularLayer) return 504;

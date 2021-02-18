@@ -48,14 +48,14 @@ void DetectorSD::Initialize(G4HCofThisEvent* HCE)
 G4bool DetectorSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
 {
   G4double edep = aStep->GetTotalEnergyDeposit();
-  
     
    // Judging the fate of primary particles +++++    
-   if(aStep->GetTrack()->GetKineticEnergy() > fEvtMessenger->GetEnergyCut() && aStep->GetTrack()->GetParentID()==0) {
-	aStep->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
-	return false;
-	 }
-   
+  if (aStep->GetTrack()->GetKineticEnergy() > fEvtMessenger->GetEnergyCut() && aStep->GetTrack()->GetParentID() == 0 &&
+                fEvtMessenger->GetEnergyCutFlag()
+  ) {
+    aStep->GetTrack()->SetTrackStatus(fKillTrackAndSecondaries);
+    return false;
+  }
      
   if (edep == 0.0) {
     double momentumChange = abs(aStep->GetPostStepPoint()->GetMomentum().mag2() - aStep->GetPreStepPoint()->GetMomentum().mag2());
@@ -120,13 +120,13 @@ G4bool DetectorSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
     }
     else
     {
-    // This is multiple scattering and compton that does not come from primary gamma generated (pair creation, electron scattering, ...)
+    // This is multiple scattering and compton that does not come from primary gamma generated (pair creation, electron scattering, multiple scatterings)
       if (fHistoManager) {
         fHistoManager->AddNodeToDecayTree(fHistoManager->GetParentIDofPhoton() * PrimaryParticleInformation::kSecondaryParticleMultiplication, 
                                           aStep->GetTrack()->GetTrackID());
         fHistoManager->SetParentIDofPhoton(fHistoManager->GetParentIDofPhoton() * PrimaryParticleInformation::kSecondaryParticleMultiplication);
       }
-      newHit->SetGenGammaMultiplicity(fHistoManager->GetParentIDofPhoton() * PrimaryParticleInformation::kSecondaryParticleMultiplication);
+      newHit->SetGenGammaMultiplicity(fHistoManager->GetParentIDofPhoton());
     }
     G4int id = fDetectorCollection->insert(newHit);
     fPreviousHits[currentScinCopy].fID = id - 1;

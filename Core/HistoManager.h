@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2021 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -73,7 +73,9 @@ public:
   int GetEventNumber() { return fEventPack->GetEventNumber(); };
   void SetHistogramCreation(bool tf) { fMakeControlHisto = tf; };
   bool GetMakeControlHisto() const { return fMakeControlHisto; };
+  void SetDecayChannel(DecayChannel decayChannel) { fDecayChannel = decayChannel; };
   void FillHistoGenInfo(const G4Event* anEvent);
+  void FillCosmicInfo(G4double theta, G4ThreeVector init, G4ThreeVector vtx);
   const JPetGeantEventInformation* GetGeantInfo() const { return fGeantInfo; }
   void createHistogramWithAxes(
     TObject* object,
@@ -101,6 +103,7 @@ private:
 
   int fParentIDofPhoton = 0;
   bool fEndOfEvent = true;
+  DecayChannel fDecayChannel;
   bool fBookStatus = false;
   bool fMakeControlHisto = false;
   TFile* fRootFile = nullptr;

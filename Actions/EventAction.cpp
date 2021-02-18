@@ -26,10 +26,10 @@
 #include <G4Event.hh>
 #include "G4RunManager.hh"
 
-EventAction::EventAction() : is2gRec(false), is3gRec(false)
+EventAction::EventAction() : is2gRec(false), is3gRec(false), fEventID(0)
 {}
 
-EventAction::EventAction(HistoManager* histo) : G4UserEventAction(), fHistoManager(histo), fScinCollID(-1), is2gRec(false), is3gRec(false)
+EventAction::EventAction(HistoManager* histo) : G4UserEventAction(), fHistoManager(histo), fScinCollID(-1), is2gRec(false), is3gRec(false), fEventID(0)
 {}
 
 EventAction::~EventAction() {}
@@ -43,6 +43,9 @@ void EventAction::BeginOfEventAction(const G4Event*)
     fScinCollID = SDman->GetCollectionID(colNam = "detectorCollection");
   }
   fHistoManager->Clear();
+  fHistoManager->SetEventNumber(fEventID);
+  fEventID++;
+  //std::cout << " | ";
 }
 
 // cppcheck-suppress unusedFunction
@@ -54,6 +57,9 @@ void EventAction::EndOfEventAction(const G4Event* anEvent)
       return;
     }
   }
+
+  CheckIf2gIsRegistered(anEvent);
+  CheckIf3gIsRegistered(anEvent);
 
   if (fEvtMessenger->Save2g()) {
     CheckIf2gIsRegistered(anEvent);
@@ -91,7 +97,7 @@ void EventAction::WriteToFile(const G4Event* anEvent)
       // Forcefully cut the remnants from the cut on photon durinng first interaction----     
       double EnergyDeposit = dh->GetEdep();
       // Removing remnants from the energy deposition cut on prim photon
-      if (EnergyDeposit < .511 - fEvtMessenger->GetEnergyCut() && fEvtMessenger->GetEnergyCutFlag()) continue;  
+      if (EnergyDeposit < .511 - fEvtMessenger->GetEnergyCut() && fEvtMessenger->GetEnergyCutFlag()) continue;
      
       fHistoManager->AddNewHit(dh);
     }

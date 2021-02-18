@@ -1,0 +1,10 @@
+# Macro for cosmic radiation events generation
+
+/jpetmc/output/AddDatetime 1
+/jpetmc/event/ShowProgress 1
+/jpetmc/source/cosmicOnly
+/jpetmc/source/cosmicGenShape cylinder
+
+/run/initialize
+
+/run/beamOn 10000

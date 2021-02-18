@@ -1,5 +1,5 @@
 /**
- *  @copyright Copyright 2020 The J-PET Monte Carlo Authors. All rights reserved.
+ *  @copyright Copyright 2021 The J-PET Monte Carlo Authors. All rights reserved.
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
  *  You may find a copy of the License in the LICENCE file.
@@ -14,6 +14,7 @@
  */
 
 #include "../Info/PrimaryParticleInformation.h"
+#include "DetectorConstants.h"
 #include "HistoManager.h"
 
 #include <G4SystemOfUnits.hh>
@@ -24,6 +25,7 @@ HistoManager::HistoManager() : fMakeControlHisto(true)
 {
   fEventPack = new JPetGeantEventPack();
   fGeantInfo = fEventPack->GetEventInformation();
+  fDecayChannel = DecayChannel::Unknown;
 }
 
 HistoManager::~HistoManager() {}
@@ -230,6 +232,36 @@ void HistoManager::BookHistograms()
     new TH1D("gen_hits_multiplicity", "Multiplicity of the hit", 3000, -0.5, 2999.5),
     "Multiplicity of the hit", "Entries"
   );
+  
+  createHistogramWithAxes(
+    new TH1D("gen_multiplicity_vs_theta", "Multiplicity of the scintillators theta angle", 364, -M_PI - 1.5, M_PI + 2.5),
+    "Multiplicity", "Theta"
+  );
+  
+  createHistogramWithAxes(
+    new TH1D("cosm_theta", "Cosmics: theta angle", 184, -M_PI/2 - 2.5, M_PI/2 + 1.5),
+    "theta [rad]", "number of entries"
+  );
+  createHistogramWithAxes(
+    new TH2D("cosm_vtx_xy", "Cosmics: generated vertex point XY",
+    204*(DetectorConstants::world_size[1]/m), -1.015*DetectorConstants::world_size[1], 1.025*DetectorConstants::world_size[1],
+    204*(DetectorConstants::world_size[0]/m), -1.015*DetectorConstants::world_size[0], 1.025*DetectorConstants::world_size[0]),
+    "Y position [cm]", "X position [cm]"
+  );
+
+  createHistogramWithAxes(
+    new TH2D("cosm_vtx_xz", "Cosmics: generated vertex point XZ",
+    204*(DetectorConstants::world_size[2]/m), -1.015*DetectorConstants::world_size[2], 1.025*DetectorConstants::world_size[2],
+    204*(DetectorConstants::world_size[0]/m), -1.015*DetectorConstants::world_size[0], 1.025*DetectorConstants::world_size[0]),
+    "Z position [cm]", "X position [cm]"
+  );
+
+  createHistogramWithAxes(
+    new TH2D("cosm_vtx_yz", "Cosmics: generated vertex point YZ",
+    204*(DetectorConstants::world_size[1]/m), -1.015*DetectorConstants::world_size[1], 1.025*DetectorConstants::world_size[1],
+    204*(DetectorConstants::world_size[2]/m), -1.015*DetectorConstants::world_size[2], 1.025*DetectorConstants::world_size[2]),
+    "Y position [cm]", "Z position [cm]"
+  );
 }
 
 void HistoManager::FillHistoGenInfo(const G4Event* anEvent)
@@ -253,8 +285,14 @@ void HistoManager::FillHistoGenInfo(const G4Event* anEvent)
 
   fillHistogram("gen_3g_angles", theta_12, doubleCheck(theta_23));
   fillHistogram("gen_energy", fGeantInfo->GetMomentumGamma(1).Mag(), doubleCheck(fGeantInfo->GetMomentumGamma(2).Mag()));
-  fillHistogram("gen_g_ene", fGeantInfo->GetMomentumGamma(1).Mag());
-  
+}
+
+void HistoManager::FillCosmicInfo(G4double theta, G4ThreeVector init, G4ThreeVector orig)
+{
+  fillHistogram("cosm_theta", theta);
+  fillHistogram("cosm_vtx_xy", init.y(), doubleCheck(init.x()));
+  fillHistogram("cosm_vtx_xz", init.z(), doubleCheck(init.x()));
+  fillHistogram("cosm_vtx_yz", init.z(), doubleCheck(init.y()));
 }
 
 void HistoManager::AddGenInfoParticles(G4PrimaryParticle* particle)
@@ -278,7 +316,8 @@ void HistoManager::AddGenInfo(VtxInformation* info)
 {
   bool is3g = info->GetThreeGammaGen();
   bool is2g = info->GetTwoGammaGen();
-  bool isprompt = info->GetPromptGammaGen();
+  bool isPrompt = info->GetPromptGammaGen();
+  bool isCosmic = info->GetCosmicGammaGen();
 
   if (is2g || is3g) {
     fGeantInfo->SetThreeGammaGen(is3g);
@@ -303,8 +342,8 @@ void HistoManager::AddGenInfo(VtxInformation* info)
     }
   }
 
-  if (isprompt) {
-    fGeantInfo->SetPromptGammaGen(isprompt);
+  if (isPrompt) {
+    fGeantInfo->SetPromptGammaGen(isPrompt);
     fGeantInfo->SetPromptLifetime(info->GetLifetime() / ps);
     fGeantInfo->SetVtxPromptPosition(
       info->GetVtxPositionX() / cm, info->GetVtxPositionY() / cm, info->GetVtxPositionZ() / cm
@@ -321,6 +360,10 @@ void HistoManager::AddGenInfo(VtxInformation* info)
   }
   SetParentIDofPhoton(0);
   fEndOfEvent = true;
+  
+  if (isCosmic){
+    fGeantInfo->setCosmicEventTag(true);
+  }
 }
 
 void HistoManager::AddNewHit(DetectorHit* hit)
@@ -361,6 +404,16 @@ void HistoManager::AddNewHit(DetectorHit* hit)
     fillHistogram("gen_hits_z_pos", hit->GetPosition().getZ()/cm);
     fillHistogram("gen_hits_xy_pos", hit->GetPosition().getX()/cm, doubleCheck(hit->GetPosition().getY()/cm));
     fillHistogram("gen_hits_multiplicity", hit->GetGenGammaMultiplicity());
+    if (hit->GetPosition().getX() > 0)
+      fillHistogram("gen_multiplicity_vs_theta", atan(hit->GetPosition().getY() / hit->GetPosition().getX()));
+    else if (hit->GetPosition().getX() < 0 && hit->GetPosition().getY() >= 0)
+      fillHistogram("gen_multiplicity_vs_theta", M_PI + atan(hit->GetPosition().getY() / hit->GetPosition().getX()));
+    else if (hit->GetPosition().getX() < 0 && hit->GetPosition().getY() <= 0)
+      fillHistogram("gen_multiplicity_vs_theta", -M_PI + atan(hit->GetPosition().getY() / hit->GetPosition().getX()));
+    else {
+      double signCheck = (hit->GetPosition().getY() >= 0 ? 1 : -1);
+      fillHistogram("gen_multiplicity_vs_theta", signCheck*M_PI/2);
+    }
   }
 }
 
@@ -382,6 +435,8 @@ void HistoManager::AddNodeToDecayTree(int nodeID, int trackID)
     JPetGeantDecayTree* newDecayTree = fEventPack->ConstructNextDecayTree();
     newDecayTree->Clean();
     fEndOfEvent = false;
+    newDecayTree->SetEventNumber(GetEventNumber());
+    newDecayTree->SetDecayChannel(fDecayChannel);
     if (firstInteraction) {
       newDecayTree->AddNodeToBranch(fParentIDofPhoton, trackID, InteractionType::kPrimaryGamma);
     }

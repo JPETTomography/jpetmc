@@ -51,6 +51,7 @@ private:
 
   bool is2gRec;
   bool is3gRec;
+  int fEventID;
   void CheckIf3gIsRegistered(const G4Event* anEvent);
   void CheckIf2gIsRegistered(const G4Event* anEvent);
 
