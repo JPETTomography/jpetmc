@@ -73,6 +73,7 @@ public:
   int GetEventNumber() { return fEventPack->GetEventNumber(); };
   void SetHistogramCreation(bool tf) { fMakeControlHisto = tf; };
   bool GetMakeControlHisto() const { return fMakeControlHisto; };
+  void SetDecayChannel(DecayChannel decayChannel) { fDecayChannel = decayChannel; };
   void FillHistoGenInfo(const G4Event* anEvent);
   const JPetGeantEventInformation* GetGeantInfo() const { return fGeantInfo; }
   void createHistogramWithAxes(
@@ -101,6 +102,7 @@ private:
 
   int fParentIDofPhoton = 0;
   bool fEndOfEvent = true;
+  DecayChannel fDecayChannel;
   bool fBookStatus = false;
   bool fMakeControlHisto = false;
   TFile* fRootFile = nullptr;

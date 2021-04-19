@@ -47,6 +47,7 @@ private:
   G4UIcmdWithoutParameter* fLoadOnlyScintillators = nullptr;
   //! Null pointer assigned to the modular layer -
   G4UIcmdWithAString* fLoadModularLayer = nullptr;
+  G4UIcmdWithoutParameter* fLoadModularLayerOnly = nullptr;
   G4UIcmdWithADoubleAndUnit* fScinHitMergingTime = nullptr;
   G4UIcmdWithAString* fGeometryFileName = nullptr;
   G4UIcmdWithAString* fCreateGeometryType = nullptr;

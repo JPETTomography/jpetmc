@@ -112,17 +112,18 @@ void DetectorConstruction::ConstructSDandField()
 {
   if (!fDetectorSD.Get()) {
     DetectorSD* det = new DetectorSD(
-      "/mydet/detector", maxScinID, DetectorConstants::GetMergingTimeValueForScin()
+      "/mydet/detector", ReturnNumberOfScintillators(), 
+                                     DetectorConstants::GetMergingTimeValueForScin()
     );
     det->SetHistoManager(fHistoManager);
     fDetectorSD.Put(det);
   }
 
   G4SDManager::GetSDMpointer()->AddNewDetector(fDetectorSD.Get());
-  SetSensitiveDetector(fScinLog, fDetectorSD.Get());
-  if (fLoadModularLayer) {
+  if (fScinLog)
+    SetSensitiveDetector(fScinLog, fDetectorSD.Get());
+  if (fLoadModularLayer)
     SetSensitiveDetector(fScinLogInModule, fDetectorSD.Get());
-  }
 }
 
 void DetectorConstruction::LoadGeometryForRun(G4int nr)
@@ -137,11 +138,9 @@ void DetectorConstruction::LoadGeometryForRun(G4int nr)
   }
 }
 
-// cppcheck-suppress unusedFunction
 G4int DetectorConstruction::ReturnNumberOfScintillators()
 {
-  if (fLoadModularLayer) return 504;
-  else return 192;
+  return fMaxScinID;
 }
 
 void DetectorConstruction::UpdateGeometry()
@@ -366,7 +365,6 @@ void DetectorConstruction::ConstructScintillators()
   boxVisAttWrapping->SetForceWireframe(true);
   boxVisAttWrapping->SetForceSolid(true);
 
-  G4int icopy = 1;
   G4int oldLayerNumber = fLayerNumber;
   G4int moduleNumber = 0;
   for (int j = 0; j < DetectorConstants::layers; j++) {
@@ -390,7 +388,7 @@ void DetectorConstruction::ConstructScintillators()
       );
 
       G4Transform3D transform(rot, loc);
-      G4String name = "scin_" + G4UIcommand::ConvertToString(icopy);
+      G4String name = "scin_" + G4UIcommand::ConvertToString(fMaxScinID);
 
       if (fCreateGeometryFile) {
         Scin scinTemp(
@@ -403,7 +401,7 @@ void DetectorConstruction::ConstructScintillators()
       }
 
       new G4PVPlacement(
-        transform, fScinLog, name, fWorldLogical, true, icopy, checkOverlaps
+        transform, fScinLog, name, fWorldLogical, true, fMaxScinID, checkOverlaps
       );
 
       if (fLoadWrapping) {
@@ -412,12 +410,12 @@ void DetectorConstruction::ConstructScintillators()
         );
         wrappingLog = new G4LogicalVolume(unionSolid, fKapton, "wrappingLogical");
         wrappingLog->SetVisAttributes(boxVisAttWrapping);
-        G4String nameWrapping = "wrapping_" + G4UIcommand::ConvertToString(icopy);
+        G4String nameWrapping = "wrapping_" + G4UIcommand::ConvertToString(fMaxScinID);
         new G4PVPlacement(
-          transform, wrappingLog, nameWrapping, fWorldLogical, true, icopy, checkOverlaps
+          transform, wrappingLog, nameWrapping, fWorldLogical, true, fMaxScinID, checkOverlaps
         );
       }
-      icopy++;
+      fMaxScinID++;
     }
   }
 }
@@ -468,7 +466,7 @@ void DetectorConstruction::ConstructScintillatorsModularLayer()
 
   //! starting ID for modular layer
   G4int icopyI = 201;
-
+  fMaxScinID = icopyI;
   G4double angDisp_8 = 0.0531204920;  // 3.0435^0
   G4double angDisp_16 = 0.0272515011; // 1.561396^0
   G4double angDisp_24 = 0.01815;      // 1.04^0
@@ -479,7 +477,6 @@ void DetectorConstruction::ConstructScintillatorsModularLayer()
   // Assume: enum GeometryKind { Geo24ModulesLayer, Geo24ModulesLayerDistributed};
   // Single : for 24 modules layer
   // Double : for 8 and 16 layer configuration
-
   switch (fGeoKind) {
     case GeometryKind::Geo24ModulesLayer:
       for (int i = 0; i < 13; i++) {
@@ -545,8 +542,9 @@ void DetectorConstruction::ConstructLayers(std::vector<G4double>& radius_dynamic
 
       new G4PVPlacement(
         transform, fScinLogInModule, nameNewI, fWorldLogical,
-        true, icopyI + i * 13 + j + 6, checkOverlaps
+        true, fMaxScinID, checkOverlaps
       );
+      fMaxScinID++;
     }
   }
 }

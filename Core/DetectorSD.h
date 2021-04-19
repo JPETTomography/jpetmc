@@ -29,7 +29,7 @@ public:
   virtual ~DetectorSD();
   virtual void Initialize(G4HCofThisEvent* HCE);
   
-  void SetHistoManager(HistoManager* histo) {fHistoManager = histo;}
+  void SetHistoManager(HistoManager* histo) { fHistoManager = histo; }
 
 private:
   struct HitParameters {

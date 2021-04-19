@@ -24,8 +24,7 @@
 
 /**
  * @class JPetGeantDecayTree
- * @brief Class stores decay tree structures (in form of vertices and tracks)
- * Class is not yet implemented
+ * @brief Class stores decay tree structures (in form of nodes and tracks)
  */
 
 enum InteractionType
@@ -35,6 +34,10 @@ enum InteractionType
   kScattNonActivePart,
   kSecondaryPart,
   kUnknownInteractionType
+};
+
+enum DecayChannel { 
+  Para2G, Direct2G, Ortho2G, Para3G, Direct3G, Ortho3G, Unknown
 };
 
 struct Branch {
@@ -64,11 +67,17 @@ public:
   void Clean();
   void ClearVectors();
   
+  void SetEventNumber(int eventID) { fEventID = eventID; };
+  void SetDecayChannel(DecayChannel decayChannel) { fDecayChannel = decayChannel; };
   int FindPrimaryPhoton(int nodeID);
   void AddNodeToBranch(int nodeID, int trackID, InteractionType interactionType);
   Branch GetBranch(unsigned trackID) const;
+  int GetEventNumber() { return fEventID; };
+  DecayChannel GetDecayChannel() { return fDecayChannel; };
 
 private:
+  int fEventID;
+  DecayChannel fDecayChannel;
   std::vector<Branch> fBranches;
   std::map<int, int> fTrackBranchConnection;
      

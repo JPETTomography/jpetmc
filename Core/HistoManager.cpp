@@ -24,6 +24,7 @@ HistoManager::HistoManager() : fMakeControlHisto(true)
 {
   fEventPack = new JPetGeantEventPack();
   fGeantInfo = fEventPack->GetEventInformation();
+  fDecayChannel = DecayChannel::Unknown;
 }
 
 HistoManager::~HistoManager() {}
@@ -188,6 +189,21 @@ void HistoManager::BookHistograms()
   );
 
   createHistogramWithAxes(
+    new TH2D("gen_X_vs_lifetime", "Generated X coordinates of annihilation point vs lifetime", 50, -24.5, 25.5, 2000, -50.0, 199950.0),
+    "Annihilation point X [cm]", "Generated lifetime [ns]"
+  );
+  
+  createHistogramWithAxes(
+    new TH2D("gen_Y_vs_lifetime", "Generated Y coordinates of annihilation point vs lifetime", 50, -24.5, 25.5, 2000, -50.0, 199950.0),
+    "Annihilation point Y [cm]", "Generated lifetime [ns]"
+  );
+  
+  createHistogramWithAxes(
+    new TH2D("gen_Z_vs_lifetime", "Generated Z coordinates of annihilation point vs lifetime", 120, -59.5, 60.5, 2000, -50.0, 199950.0),
+    "Annihilation point Z [cm]", "Generated lifetime [ns]"
+  );
+  
+  createHistogramWithAxes(
     new TH2D("gen_prompt_XY", "Generated XY coordinates of annihilation point", 50, -24.5, 25.5, 50, -24.5, 25.5),
     "Prompt emission point X [cm]", "Prompt emission point Y [cm]"
   );
@@ -253,8 +269,6 @@ void HistoManager::FillHistoGenInfo(const G4Event* anEvent)
 
   fillHistogram("gen_3g_angles", theta_12, doubleCheck(theta_23));
   fillHistogram("gen_energy", fGeantInfo->GetMomentumGamma(1).Mag(), doubleCheck(fGeantInfo->GetMomentumGamma(2).Mag()));
-  fillHistogram("gen_g_ene", fGeantInfo->GetMomentumGamma(1).Mag());
-  
 }
 
 void HistoManager::AddGenInfoParticles(G4PrimaryParticle* particle)
@@ -300,6 +314,9 @@ void HistoManager::AddGenInfo(VtxInformation* info)
       fillHistogram("gen_XY", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionY() / cm));
       fillHistogram("gen_XZ", info->GetVtxPositionX() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
       fillHistogram("gen_YZ", info->GetVtxPositionY() / cm, doubleCheck(info->GetVtxPositionZ() / cm));
+      fillHistogram("gen_X_vs_lifetime", info->GetVtxPositionX() / cm, doubleCheck(info->GetLifetime() / ps));
+      fillHistogram("gen_Y_vs_lifetime", info->GetVtxPositionY() / cm, doubleCheck(info->GetLifetime() / ps));
+      fillHistogram("gen_Z_vs_lifetime", info->GetVtxPositionZ() / cm, doubleCheck(info->GetLifetime() / ps));
     }
   }
 
@@ -382,6 +399,8 @@ void HistoManager::AddNodeToDecayTree(int nodeID, int trackID)
     JPetGeantDecayTree* newDecayTree = fEventPack->ConstructNextDecayTree();
     newDecayTree->Clean();
     fEndOfEvent = false;
+    newDecayTree->SetEventNumber(GetEventNumber());
+    newDecayTree->SetDecayChannel(fDecayChannel);
     if (firstInteraction) {
       newDecayTree->AddNodeToBranch(fParentIDofPhoton, trackID, InteractionType::kPrimaryGamma);
     }

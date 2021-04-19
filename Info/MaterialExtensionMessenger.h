@@ -50,6 +50,7 @@ private:
   G4UIcmdWithAString* fAddoPsComponent = nullptr;
   G4UIcmdWithAString* fSetpPsComponent = nullptr;
   G4UIcmdWithAString* fAddDirectComponent = nullptr;
+  G4UIcmdWithADouble* fSetpPs3GFraction = nullptr;
   G4UIcmdWithAString* fReloadMaterials = nullptr;
   bool fIsOnly3g = true;
 };

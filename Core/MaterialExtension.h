@@ -16,6 +16,7 @@
 #ifndef MATERIALEXTENSION_H
 #define MATERIALEXTENSION_H 1
 
+#include "../Objects/Framework/JPetGeantDecayTree.h"
 #include "../Info/MaterialExtensionMessenger.h"
 #include "MaterialParameters.h"
 
@@ -34,10 +35,6 @@
 class MaterialExtension : public G4Material
 {
 public:
-  enum DecayChannel { 
-    Ortho2G, Ortho3G, Para2G, Direct, Para3G
-  };
-    
   MaterialExtension(
     MaterialParameters::MaterialID materialID, 
     const G4String& name, const G4Material* baseMaterial

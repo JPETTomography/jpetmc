@@ -53,7 +53,8 @@ InteractionType Branch::GetInteractionType(int nodeID) const
   return kUnknownInteractionType;
 }
 
-JPetGeantDecayTree::JPetGeantDecayTree() {}
+JPetGeantDecayTree::JPetGeantDecayTree() : fEventID(0), fDecayChannel(DecayChannel::Unknown)
+{}
 
 JPetGeantDecayTree::~JPetGeantDecayTree() 
 {

@@ -3,11 +3,13 @@
 
 /jpetmc/detector/loadTargetForRun 5
 
-# Loading standard scintillators (3 layers)
+# Loading standard scintillators (3 layers with frame)
 /jpetmc/detector/loadJPetBasicGeom
 
 # Loading modular layers
 /jpetmc/detector/loadModularLayer Single
+# Do not load three layers of standard detector
+#/jpetmc/detector/loadModularLayerOnly
 
 # Loading scintillators without frame
 /jpetmc/detector/loadOnlyScintillators

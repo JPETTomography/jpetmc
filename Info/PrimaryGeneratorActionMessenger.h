@@ -55,6 +55,10 @@ private:
   G4UIcmdWithADoubleAndUnit* fIsotopeSetShapeDimCylinderZ = nullptr;
   G4UIcmdWith3VectorAndUnit* fIsotopeSetCenter = nullptr;
   G4UIcmdWithAnInteger* fNemaPosition = nullptr;
+  G4UIcmdWithoutParameter* fNemaMixed = nullptr;
+  G4UIcmdWithAString* fNemaSetPosition = nullptr;
+  G4UIcmdWithAString* fNemaSetPositionWeight = nullptr;
+  G4UIcmdWithAString* fNemaSetPositionLifetime = nullptr;
   G4UIcmdWith3VectorAndUnit* fSetChamberCenter = nullptr;
   G4UIcmdWithADoubleAndUnit* fSetChamberEffectivePositronRadius = nullptr;
 };
